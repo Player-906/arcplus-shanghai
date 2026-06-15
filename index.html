@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>华建集团 · 上海作品全集</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<style>
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;color:#1a1a2e;background:#f0f2f5;line-height:1.7;overflow-x:hidden}
+
+/* ===== Map ===== */
+.map-section{padding:0;background:#fff;position:relative}
+.map-section h2{text-align:center;font-size:26px;padding:50px 20px 0;background:#fff}
+.map-section .section-sub{text-align:center;color:#888;padding:6px 20px 24px;background:#fff;font-size:15px}
+.map-container{width:100%;height:550px;z-index:1}
+.map-container .leaflet-popup-content{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;min-width:200px}
+.map-container .leaflet-popup-content strong{font-size:15px;color:#003d7a}
+.map-legend{background:rgba(255,255,255,0.95);padding:12px 16px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.12);font-size:12px;line-height:1.8}
+.map-legend span{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.map-info-banner{background:#003d7a;color:#fff;text-align:center;padding:12px 20px;font-size:13px}
+.map-info-banner strong{color:#d4a017}
+
+/* ===== Navigation ===== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,15,40,0.93);backdrop-filter:blur(16px);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08)}
+.nav-logo{color:#fff;font-size:17px;font-weight:700;letter-spacing:0.5px;white-space:nowrap}
+.nav-logo span{color:#d4a017}
+.nav-links{display:flex;gap:20px;list-style:none}
+.nav-links a{color:#ccc;text-decoration:none;font-size:14px;transition:color .2s;white-space:nowrap}
+.nav-links a:hover{color:#d4a017}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+.nav-toggle span{width:24px;height:2px;background:#fff;transition:.3s}
+
+/* ===== Hero ===== */
+.hero{min-height:100vh;background:linear-gradient(135deg,#0a0f28 0%,#16214d 40%,#0d3b66 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:80px 20px}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900'%3E%3Cpath d='M0 450 Q 360 300 720 420 T 1440 380 L1440 900 L0 900Z' fill='%23ffffff08'/%3E%3Cpath d='M0 520 Q 400 380 800 500 T 1440 450 L1440 900 L0 900Z' fill='%23ffffff04'/%3E%3Ccircle cx='200' cy='700' r='30' fill='%23d4a01733'/%3E%3Ccircle cx='720' cy='650' r='45' fill='%23d4a01722'/%3E%3Ccircle cx='1100' cy='720' r='35' fill='%23d4a0172a'/%3E%3C/svg%3E") center/cover no-repeat;pointer-events:none}
+.hero-content{position:relative;z-index:1;text-align:center;max-width:860px}
+.hero-badge{display:inline-block;padding:6px 20px;border:1px solid rgba(212,160,23,0.5);border-radius:50px;color:#d4a017;font-size:13px;letter-spacing:2px;margin-bottom:24px}
+.hero h1{font-size:clamp(32px,6vw,52px);color:#fff;font-weight:800;line-height:1.25;margin-bottom:16px}
+.hero h1 em{font-style:normal;color:#d4a017}
+.hero p{color:#aab;font-size:18px;max-width:600px;margin:0 auto 36px}
+.hero-stats{display:flex;gap:36px;justify-content:center;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:36px;font-weight:800;color:#d4a017}
+.hero-stat .label{font-size:13px;color:#889;margin-top:4px}
+.scroll-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);color:#889;font-size:13px;text-align:center;animation:bounce 2s infinite}
+.scroll-hint svg{display:block;margin:0 auto 6px;width:20px;height:20px}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+
+/* ===== Category Nav / Tabs ===== */
+.cat-nav{position:sticky;top:60px;z-index:999;background:#fff;border-bottom:1px solid #e0e0e0;padding:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cat-nav-inner{display:flex;max-width:1200px;margin:0 auto;padding:0 16px}
+.cat-tab{flex-shrink:0;padding:14px 18px;font-size:14px;color:#666;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;transition:.2s;font-family:inherit;white-space:nowrap}
+.cat-tab:hover{color:#003d7a;background:#f5f7fa}
+.cat-tab.active{color:#003d7a;border-bottom-color:#d4a017;font-weight:700}
+.cat-tab .emoji{font-size:16px;margin-right:4px}
+
+/* ===== Section Commons ===== */
+.section{padding:60px 20px}
+.section-alt{background:#fff}
+.section h2{text-align:center;font-size:26px;margin-bottom:6px}
+.section .section-sub{text-align:center;color:#888;margin-bottom:36px;font-size:15px}
+.container{max-width:1200px;margin:0 auto}
+
+/* ===== Stats Bar ===== */
+.stats-bar{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.stat-item{text-align:center;padding:20px 28px;background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.04);min-width:120px}
+.stat-item .n{font-size:28px;font-weight:800;color:#003d7a}
+.stat-item .l{font-size:12px;color:#888;margin-top:2px}
+
+/* ===== Filter Bar ===== */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px}
+.filter-btn{padding:7px 18px;border-radius:50px;border:1.5px solid #d4a017;background:#fff;color:#1a1a2e;cursor:pointer;font-size:13px;transition:.2s;font-family:inherit}
+.filter-btn.active,.filter-btn:hover{background:#d4a017;color:#fff}
+
+/* ===== Card Grid ===== */
+.area-block{margin-bottom:56px}
+.area-title{font-size:21px;color:#003d7a;padding-bottom:14px;border-bottom:2px solid #d4a017;display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.area-title .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#003d7a;color:#fff;border-radius:50%;font-size:15px;flex-shrink:0}
+.area-sub{color:#888;font-size:14px;margin-bottom:18px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{background:#fff;border-radius:10px;padding:18px 20px;border:1px solid #e8eaef;transition:.2s;display:flex;flex-direction:column;gap:8px}
+.card:hover{box-shadow:0 6px 24px rgba(0,0,0,0.08);transform:translateY(-2px)}
+.card-name{font-size:16px;font-weight:700;color:#1a1a2e}
+.card-role{font-size:12px;color:#003d7a;font-weight:600}
+.card-desc{font-size:13.5px;color:#666;line-height:1.6;flex:1}
+.card-footer{display:flex;justify-content:space-between;align-items:center}
+.card-meta{display:flex;gap:6px;flex-wrap:wrap}
+.card-tag{display:inline-block;padding:2px 10px;border-radius:50px;font-size:11px;font-weight:600}
+.tag-built{background:#e8f5e9;color:#2e7d32}
+.tag-building{background:#fff3e0;color:#e65100}
+.tag-design{background:#e3f2fd;color:#0d47a1}
+.tag-location{font-size:11px;color:#999}
+
+/* ===== River Map ===== */
+.river-map{max-width:600px;margin:0 auto;position:relative}
+.river-line{position:absolute;left:50%;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,#1a5276,#0d3b66,#1a5276,#0d3b66,#1a5276,#145a32);transform:translateX(-50%);border-radius:2px}
+.river-node{position:relative;margin-bottom:56px;display:flex;align-items:center}
+.river-node:nth-child(odd){flex-direction:row;padding-right:calc(50% + 30px)}
+.river-node:nth-child(even){flex-direction:row-reverse;padding-left:calc(50% + 30px)}
+.river-dot{position:absolute;left:50%;top:24px;transform:translate(-50%,-50%);width:16px;height:16px;background:#d4a017;border-radius:50%;box-shadow:0 0 0 6px rgba(212,160,23,0.2);z-index:2}
+.river-card{background:#f8f9fb;border-radius:12px;padding:18px 22px;border:1px solid #e8eaef;transition:.2s;flex:1}
+.river-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.1)}
+.river-card h4{font-size:16px;color:#003d7a;margin-bottom:4px}
+.river-card .loc{font-size:12px;color:#d4a017;font-weight:600;margin-bottom:8px}
+.river-card ul{list-style:none;font-size:13px;color:#555}
+.river-card ul li{margin-bottom:3px;padding-left:12px;position:relative}
+.river-card ul li::before{content:'•';position:absolute;left:0;color:#d4a017}
+
+/* ===== Search ===== */
+.search-wrap{max-width:500px;margin:0 auto 36px;position:relative}
+.search-input{width:100%;padding:12px 20px 12px 44px;border:2px solid #e0e0e0;border-radius:50px;font-size:15px;font-family:inherit;outline:none;transition:.2s}
+.search-input:focus{border-color:#d4a017}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#999;font-size:18px}
+
+/* ===== Summary ===== */
+.summary-section{padding:80px 20px;background:#0a0f28;color:#fff}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1100px;margin:0 auto}
+.summary-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:26px;text-align:center}
+.summary-card .icon{font-size:38px;margin-bottom:10px}
+.summary-card h4{font-size:17px;margin-bottom:10px;color:#d4a017}
+.summary-card p{font-size:13.5px;color:#aab;line-height:1.7}
+
+/* ===== Footer ===== */
+.footer{background:#060a1a;color:#889;text-align:center;padding:40px 20px;font-size:13px;line-height:2}
+.footer a{color:#d4a017;text-decoration:none}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  .map-container{height:380px}
+  .nav-links{display:none;position:absolute;top:60px;left:0;right:0;flex-direction:column;background:rgba(10,15,40,0.97);padding:12px 24px;gap:10px}
+  .nav-links.open{display:flex}
+  .nav-toggle{display:flex}
+  .cat-tab{padding:12px 14px;font-size:13px}
+  .river-node:nth-child(odd),.river-node:nth-child(even){flex-direction:column;padding:0 0 0 32px}
+  .river-dot{left:0;transform:translate(0,-50%)}
+  .river-line{left:8px}
+  .hero-stats{gap:20px}
+  .card-grid{grid-template-columns:1fr}
+  .stats-bar{gap:12px}
+  .stat-item{padding:14px 18px;min-width:90px}
+  .stat-item .n{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- ====== NAV ====== -->
+<nav class="nav">
+  <div class="nav-logo">Arcplus 华建集团<span> · 上海作品全集</span></div>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><a href="#hero">首页</a></li>
+    <li><a href="#map-section">项目地图</a></li>
+    <li><a href="#all-projects">按类别浏览</a></li>
+    <li><a href="#river-map-section">滨江地图</a></li>
+    <li><a href="#summary-section">关键总结</a></li>
+  </ul>
+</nav>
+
+<!-- ====== HERO ====== -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">SHANGHAI · 全域覆盖</div>
+    <h1>华建集团 <em>上海</em>作品全集</h1>
+    <p>从陆家嘴天际线到虹桥枢纽，从世博场馆到滨江艺术带——华建集团（华东院+上海院）在过去70余年间，设计了上海绝大多数里程碑式建筑。</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">150+</div><div class="label">收录代表性项目</div></div>
+      <div class="hero-stat"><div class="num">12</div><div class="label">项目类别覆盖</div></div>
+      <div class="hero-stat"><div class="num">480<span style="font-size:16px">m</span></div><div class="label">浦西第一高（在建）</div></div>
+      <div class="hero-stat"><div class="num">15</div><div class="label">全国500m+建筑参与</div></div>
+      <div class="hero-stat"><div class="num">88</div><div class="label">2026年市重大工程</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>向下滚动探索
+  </div>
+</section>
+
+<!-- ====== MAP ====== -->
+<section class="map-section" id="map-section">
+  <h2>📍 项目分布地图</h2>
+  <p class="section-sub">点击标记查看项目详情 · 滚轮缩放 · 不同颜色对应不同类别 · 密集区域自动聚合</p>
+  <div class="map-container" id="map"></div>
+  <div class="map-info-banner">
+    🟠<strong>超高层</strong> &nbsp;🟣<strong>文化</strong>&nbsp; 🔵<strong>交通</strong>&nbsp; 🟢<strong>体育</strong>&nbsp; 🔴<strong>医疗</strong>&nbsp; 🟤<strong>城市更新</strong>&nbsp; ⚫<strong>会展</strong>&nbsp; 🩶<strong>其他</strong>&nbsp; &nbsp;| &nbsp;共 <strong id="mapTotalCount"></strong> 个项目已标注
+  </div>
+</section>
+
+<!-- ====== CATEGORY NAV ====== -->
+<div class="cat-nav" id="cat-nav">
+  <div class="cat-nav-inner" id="cat-nav-inner"></div>
+</div>
+
+<!-- ====== ALL PROJECTS BY CATEGORY ====== -->
+<section class="section section-alt" id="all-projects">
+  <div class="container">
+    <h2>🏗️ 全类别项目浏览</h2>
+    <p class="section-sub">按建筑类型分类查看 · 点击顶部标签快速跳转 · 支持状态筛选与搜索</p>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-item"><div class="n">15+</div><div class="l">超高层 (200m+)</div></div>
+      <div class="stat-item"><div class="n">30+</div><div class="l">文化场馆</div></div>
+      <div class="stat-item"><div class="n">20+</div><div class="l">交通枢纽/机场</div></div>
+      <div class="stat-item"><div class="n">40+</div><div class="l">城市更新/保护</div></div>
+      <div class="stat-item"><div class="n">20+</div><div class="l">医疗建筑</div></div>
+      <div class="stat-item"><div class="n">10+</div><div class="l">体育场馆</div></div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索项目名称、地点或关键词...">
+    </div>
+
+    <!-- Status filter -->
+    <div class="filter-bar" id="statusFilter">
+      <button class="filter-btn active" data-status="all">全部状态</button>
+      <button class="filter-btn" data-status="built">✅ 已建成</button>
+      <button class="filter-btn" data-status="building">🔨 在建</button>
+      <button class="filter-btn" data-status="design">📐 设计阶段</button>
+    </div>
+
+    <!-- Project sections injected by JS -->
+    <div id="project-sections"></div>
+  </div>
+</section>
+
+<!-- ====== RIVER MAP ====== -->
+<section class="section" id="river-map-section">
+  <div class="container">
+    <h2>🌊 黄浦江滨江项目全览</h2>
+    <p class="section-sub">从北到南 · 沿江而下 · 一图纵览华建滨江布局</p>
+    <div class="river-map">
+      <div class="river-line"></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🚢 宝山滨江</h4><div class="loc">长江与黄浦江交汇处</div><ul><li>上海国际邮轮旅游度假区 — 6km滨江景观提升</li><li>"上海最美骑行道" · 2024年竣工</li></ul></div></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🏭 杨浦滨江</h4><div class="loc">"工业锈带" → "生活秀带"</div><ul><li>上海国际时尚中心 — 原第十七棉纺织总厂</li><li>怡和纱厂旧址修缮（杨树浦路670号）</li></ul></div></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🌆 北外滩（虹口滨江）</h4><div class="loc">浦西未来第一高楼所在地</div><ul><li>世界会客厅 — 9.9万㎡国际会议地标</li><li>北外滩91街坊 — 480m浦西第一高楼</li><li>雷士德工学院修缮</li></ul></div></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🏙️ 陆家嘴滨江（浦东）</h4><div class="loc">中国最具辨识度的天际线</div><ul><li>东方明珠 — 华东院原创设计</li><li>金茂大厦 / 环球金融中心 — 顾问&合作</li><li>国际航运金融大厦 · 浦东机场门户</li></ul></div></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🏛️ 外滩 / 黄浦滨江</h4><div class="loc">百年外滩的焕新升级</div><ul><li>外滩·老市府保护焕新</li><li>南外滩金融中心 · 外马路326街坊</li><li>洛克·外滩源 · 汇丰银行修缮 · 和平饭店</li></ul></div></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🎪 世博滨江（浦东+浦西）</h4><div class="loc">后世博时代的城市复兴</div><ul><li>中国国家馆 / 世博中心 / 世博文化中心</li><li>上海工业博物馆 — 江南制造总局旧址</li><li>新开发银行总部 · 中国船舶科研基地</li></ul></div></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🎨 徐汇滨江 / 西岸 ⭐</h4><div class="loc">11.4km 卓越水岸 · 项目最密集</div><ul><li>西岸国际会展中心 — "钻石"新地标</li><li>西岸传媒港 · 梦中心 · 金融城</li><li>西岸大剧院 · 自然艺术公园 · 阿里总部</li></ul></div></div>
+      <div class="river-node"><div class="river-dot"></div><div class="river-card"><h4>🌳 三林滨江（浦东）</h4><div class="loc">黄浦江核心区大规模成片开发</div><ul><li>总用地约4.2km²</li><li>"城中村"改造标杆 · 综合开发推进中</li></ul></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== SUMMARY ====== -->
+<section class="summary-section" id="summary-section">
+  <div class="container">
+    <h2 style="text-align:center;margin-bottom:40px">🔑 华建集团 · 关键能力画像</h2>
+    <div class="summary-grid">
+      <div class="summary-card"><div class="icon">🏗️</div><h4>超高层绝对领先</h4><p>累计参与全国15座500m+超高层，200m+占全国半数以上。从东方明珠到北外滩480m，定义了上海天际线。</p></div>
+      <div class="summary-card"><div class="icon">✈️</div><h4>交通枢纽之王</h4><p>虹桥枢纽开创高铁+机场无缝衔接先河，浦东机场T2国内首次原创设计超大型机场，东方枢纽再续传奇。</p></div>
+      <div class="summary-card"><div class="icon">🏛️</div><h4>文保修缮第一院</h4><p>外滩老市府、汇丰银行、和平饭店、张园、上生新所——上海最顶级历史建筑保护项目几乎全部由华建操刀。</p></div>
+      <div class="summary-card"><div class="icon">🎭</div><h4>文化场馆集群</h4><p>上海博物馆、上海图书馆、上海大歌剧院、上海天文馆、科技馆、世博中国馆——构建了上海的文化骨架。</p></div>
+      <div class="summary-card"><div class="icon">🏥</div><h4>医疗建筑专家</h4><p>中山医院、瑞金医院、九院、肿瘤医院……承担上海绝大多数三甲医院新改扩建，年合同额超2亿元。</p></div>
+      <div class="summary-card"><div class="icon">🏟️</div><h4>体育会展全能</h4><p>浦东足球场、东方体育中心、八万人体育场、国家会展中心、西岸会展——从F1到进博会全覆盖。</p></div>
+      <div class="summary-card"><div class="icon">🎨</div><h4>西岸"包场级"布局</h4><p>11.4km岸线上会展中心、传媒港、梦中心、金融城、大剧院、自然公园全部华建系操刀。</p></div>
+      <div class="summary-card"><div class="icon">🏭</div><h4>工业遗存活化标杆</h4><p>怡和纱厂→地标、十七棉纺→时尚中心、江南造船厂→工博馆、水泥厂→梦中心——全部华丽变身。</p></div>
+      <div class="summary-card"><div class="icon">🌊</div><h4>"一江一河"主力军</h4><p>从杨浦→虹口→黄浦→徐汇→浦东→宝山，覆盖黄浦江全线+苏州河两岸贯通提升。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer class="footer">
+  <p>数据来源：华建集团官网 · 华东院官网 · 上海院官网 · 澎湃新闻 · 上海国资 · 文汇网 · 维基百科</p>
+  <p>整理日期：2026年6月15日 · 收录项目约150+个 · 仅含公开可查的代表性项目，非华建集团官方完整清单</p>
+  <p style="margin-top:8px;color:#d4a017">Arcplus 华东建筑集团股份有限公司 · 上海</p>
+</footer>
+
+<!-- ====== DATA & SCRIPTS ====== -->
+<script>
+// Category colors for markers
+const catColors = {
+  supertall:'#e65100',culture:'#7b1fa2',transport:'#1565c0',sports:'#2e7d32',
+  healthcare:'#c62828',education:'#00838f',urbanrenewal:'#6d4c41',office:'#37474f',
+  commercial:'#f57c00',hotel:'#ad1457',expo:'#212121',research:'#283593'
+};
+
+// ===== BUILD MARKERS =====
+function buildMarkers() {
+  return projects.map(p => {
+    const lat = p.lat, lng = p.lng;
+    const color = catColors[p.cat] || '#666';
+    const statusText = p.status==='built'?'✅ '+(p.year||'已建成'):p.status==='building'?'🔨 '+(p.year||'在建'):'📐 '+(p.year||'设计中');
+    return {lat,lng,color,name:p.name,role:p.role,desc:p.desc,loc:p.loc,statusText,cat:p.cat};
+  });
+}
+
+// ===== MAP INITIALIZATION =====
+function initMap() {
+  const map = L.map('map', {center:[31.220,121.480],zoom:11,zoomControl:true});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; <a href="https://openstreetmap.org">OSM</a>',
+    maxZoom:19
+  }).addTo(map);
+
+  const markers = buildMarkers();
+  document.getElementById('mapTotalCount').textContent = markers.length;
+
+  const clusterGroup = L.markerClusterGroup({
+    maxClusterRadius:50,
+    spiderfyOnMaxZoom:true,
+    showCoverageOnHover:false,
+    iconCreateFunction: function(cluster) {
+      const count = cluster.getChildCount();
+      return L.divIcon({
+        html:`<div style="background:#003d7a;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:3px solid #d4a017;box-shadow:0 2px 8px rgba(0,0,0,0.3)">${count}</div>`,
+        className:'',iconSize:[36,36],iconAnchor:[18,18]
+      });
+    }
+  });
+
+  markers.forEach(m => {
+    const icon = L.divIcon({
+      html:`<div style="background:${m.color};width:16px;height:16px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,0.35)"></div>`,
+      className:'',iconSize:[16,16],iconAnchor:[8,8]
+    });
+    const marker = L.marker([m.lat, m.lng], {icon});
+    marker.bindPopup(`<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#003d7a;font-size:12px">${m.role}</span><br><span style="color:#555">${m.desc.substring(0,80)}${m.desc.length>80?'…':''}</span>`);
+    clusterGroup.addLayer(marker);
+  });
+
+  map.addLayer(clusterGroup);
+
+  // Fit bounds to show all Shanghai
+  map.fitBounds([[31.40,121.10],[30.88,121.95]],{padding:[30,30]});
+}
+
+// Call map on DOM ready
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initMap);
+else initMap();
+
+// ===== PROJECT DATABASE =====
+const categories = [
+  { id:'supertall', emoji:'🏗️', name:'超高层/天际线' },
+  { id:'culture', emoji:'🎭', name:'文化场馆' },
+  { id:'transport', emoji:'✈️', name:'交通枢纽' },
+  { id:'sports', emoji:'🏟️', name:'体育场馆' },
+  { id:'healthcare', emoji:'🏥', name:'医疗建筑' },
+  { id:'education', emoji:'🎓', name:'教育建筑' },
+  { id:'urbanrenewal', emoji:'🏛️', name:'城市更新/保护' },
+  { id:'office', emoji:'🏢', name:'总部办公' },
+  { id:'commercial', emoji:'🏬', name:'商业/综合体' },
+  { id:'hotel', emoji:'🏨', name:'酒店/住宅' },
+  { id:'expo', emoji:'🎪', name:'会展/博览' },
+  { id:'research', emoji:'🔬', name:'科研设施' }
+];
+
+const projects = [
+  // ===== 超高层/天际线 =====
+  {cat:'supertall',name:'东方明珠广播电视塔',role:'华东院 · 原创设计',desc:'468米，上海城市名片。总设计师江欢成，"大珠小珠落玉盘"。中国人自己投资、设计、施工、经营。',loc:'浦东陆家嘴',status:'built',year:'1995',lat:31.2417,lng:121.4947},
+  {cat:'supertall',name:'金茂大厦',role:'华东院 · 顾问设计监理',desc:'420.5米/88层，SOM+华东院合作，新中国50周年上海十大经典建筑金奖第一名。2024华东院中标全面焕新。',loc:'浦东陆家嘴',status:'built',year:'1999',lat:31.2373,lng:121.5014},
+  {cat:'supertall',name:'上海环球金融中心',role:'华东院 · 中方合作设计',desc:'492米，陆家嘴"三件套"之一，一度为中国大陆第一高楼，独特的倒梯形风洞造型。',loc:'浦东陆家嘴',status:'built',year:'2008',lat:31.2366,lng:121.5027},
+  {cat:'supertall',name:'北外滩91街坊',role:'华东院 · 设计总控',desc:'480米浦西第一高楼，建面44.6万㎡，未来上海城市形象新名片，与陆家嘴隔江对望。',loc:'虹口北外滩',status:'building',year:'2030',lat:31.2520,lng:121.4960},
+  {cat:'supertall',name:'张江"科学之门"双子塔',role:'华东院+Genlser · 联合设计',desc:'320m×2，上海最高双子塔，2025年交付，获CTBUH全球奖最佳高层建筑奖。',loc:'浦东张江',status:'built',year:'2025',lat:31.2057,lng:121.5795},
+  {cat:'supertall',name:'金桥元中心',role:'华东院 · 设计总包',desc:'330米，金桥副中心最高地标，含上海首个瑞吉酒店主题室外观光平台+200m最高住宅楼。',loc:'浦东金桥',status:'building',year:'',lat:31.2620,lng:121.5700},
+  {cat:'supertall',name:'上海国际航运金融大厦',role:'华东院 · 设计',desc:'232米/地上50层，获鲁班奖。2024年完成城市更新蝶变升级，楼宇更新实践先行者。',loc:'浦东陆家嘴',status:'built',year:'1999',lat:31.2430,lng:121.5120},
+  {cat:'supertall',name:'新开发银行总部大楼',role:'华东院 · 设计总包',desc:'150米/建面12.6万㎡，中国首个超高层健康建筑（绿建三星+LEED铂金+健康三星），2021年交付。',loc:'浦东世博',status:'built',year:'2021',lat:31.1872,lng:121.4830},
+  {cat:'supertall',name:'北外滩90街坊',role:'华东院 · 设计',desc:'建面15万㎡超高层商办文化综合体，北外滩核心区重要拼图。',loc:'虹口北外滩',status:'building',year:'2028',lat:31.2515,lng:121.4950},
+
+  // ===== 文化场馆 =====
+  {cat:'culture',name:'上海博物馆',role:'上海院 · 邢同和主持设计',desc:'人民广场文化地标，"天圆地方"造型，获多项国家大奖，上海文化名片。',loc:'黄浦区人民广场',status:'built',year:'1996',lat:31.2303,lng:121.4706},
+  {cat:'culture',name:'上海图书馆',role:'上海院 · 唐玉恩设计',desc:'淮海中路文化地标，已成为"书香上海"的象征。',loc:'徐汇区淮海中路',status:'built',year:'1996',lat:31.2095,lng:121.4447},
+  {cat:'culture',name:'上海图书馆东馆',role:'上海院 · 设计',desc:'浦东花木核心文化地标，新一代智慧图书馆典范。',loc:'浦东花木',status:'built',year:'2022',lat:31.2086,lng:121.5460},
+  {cat:'culture',name:'上海大歌剧院',role:'华建集团 · 设计',desc:'"十三五"重大文化设施，上海建设国际文化大都市核心载体之一，世博后滩。',loc:'浦东世博后滩',status:'building',year:'',lat:31.1780,lng:121.4770},
+  {cat:'culture',name:'上海天文馆',role:'上海院 · 设计',desc:'临港世界级天文馆，主入口大悬挑钢结构61米跨度，全球最大天文馆。',loc:'浦东临港',status:'built',year:'2021',lat:30.9137,lng:121.9240},
+  {cat:'culture',name:'上海科技馆',role:'上海院 · 设计',desc:'浦东经典科普地标，获多项国家大奖。',loc:'浦东花木',status:'built',year:'2001',lat:31.2207,lng:121.5410},
+  {cat:'culture',name:'上海少年儿童图书馆（长风馆）',role:'上海院 · 设计',desc:'新型少儿文化空间，长风公园畔。',loc:'普陀区长风',status:'built',year:'2022',lat:31.2268,lng:121.3958},
+  {cat:'culture',name:'黄浦区文化中心',role:'华东院+何斐德 · 联合设计',desc:'含1000人剧场+黑箱剧场+五厅影院，2025年竣工。',loc:'黄浦区',status:'built',year:'2025',lat:31.2250,lng:121.4850},
+  {cat:'culture',name:'上海历史博物馆',role:'华东院 · 改造设计',desc:'原跑马总会大楼，拆除后期搭建，开放共享庭院，重塑共生。',loc:'黄浦区人民广场',status:'built',year:'2018',lat:31.2325,lng:121.4720},
+  {cat:'culture',name:'上海市档案馆新馆',role:'华建集团 · 设计',desc:'浦东白杨路636号，全国规模最大省级国家综合档案馆，建面13.1万㎡。',loc:'浦东花木',status:'built',year:'2021',lat:31.2065,lng:121.5510},
+  {cat:'culture',name:'嘉定区档案馆新馆',role:'上海院 · 原创设计',desc:'嘉定区嘉戬公路116号，已向公众开放的新一代综合档案馆。',loc:'嘉定区嘉戬公路',status:'built',year:'',lat:31.3800,lng:121.2720},
+  {cat:'culture',name:'上海越剧演艺传习中心',role:'上海院 · 设计',desc:'徐汇区枫林街道，建面2.16万㎡，立面"袖舞"造型寓意，文化软实力提升项目。',loc:'徐汇区枫林',status:'building',year:'',lat:31.1940,lng:121.4510},
+  {cat:'culture',name:'上海马戏城中剧场',role:'上海院 · 设计',desc:'静安区共和新路2266号(上海马戏城)，新建3705㎡专业剧场，地铁1号线马戏城站。',loc:'静安区大宁',status:'building',year:'',lat:31.2790,lng:121.4548},
+  {cat:'culture',name:'临港少年宫',role:'上海院+环境院 · 设计',desc:'集科技体验、青少年活动于一体，2025年全面开课。',loc:'浦东临港',status:'built',year:'2025',lat:30.9100,lng:121.9200},
+
+  // ===== 交通枢纽 =====
+  {cat:'transport',name:'浦东国际机场T1航站楼',role:'华东院 · 参与设计',desc:'上海门户枢纽机场首期，奠定浦东机场国际航空枢纽地位。',loc:'浦东机场',status:'built',year:'1999',lat:31.1434,lng:121.8045},
+  {cat:'transport',name:'浦东国际机场T2航站楼',role:'华东院 · 原创设计',desc:'国内超大型机场首次原创设计，获全国优秀工程勘察设计奖金奖。',loc:'浦东机场',status:'built',year:'2008',lat:31.1450,lng:121.8010},
+  {cat:'transport',name:'浦东国际机场卫星厅',role:'华东院 · 原创设计',desc:'世界最大单体卫星厅，提升浦东机场年吞吐量至8000万人次。',loc:'浦东机场',status:'built',year:'2019',lat:31.1350,lng:121.7950},
+  {cat:'transport',name:'虹桥综合交通枢纽',role:'华东院 · 总体设计协调',desc:'世界规模最大空陆一体化交通中心，核心区建面140万㎡，民航+高铁+城际+地铁+公交无缝衔接。',loc:'闵行区虹桥',status:'built',year:'2010',lat:31.1963,lng:121.3200},
+  {cat:'transport',name:'东方枢纽上海东站',role:'华东院+中铁四院 · 联合设计',desc:'14台30线/建面74万㎡，国内首个空铁共构综合枢纽，空铁换乘仅4分钟，首个超低能耗交通枢纽。',loc:'浦东祝桥',status:'building',year:'',lat:31.1150,lng:121.7580},
+  {cat:'transport',name:'龙阳路磁悬浮车站',role:'华东院 · 郭建祥大师设计',desc:'中国首条磁悬浮商业运营线站点，交通建筑经典之作。',loc:'浦东花木',status:'built',year:'2002',lat:31.2040,lng:121.5560},
+  {cat:'transport',name:'上海轨道交通13号线',role:'华建集团 · 设计',desc:'金运路站-诸光路站、张江路站-丹桂路站段设计。',loc:'上海',status:'built',year:'',lat:31.230,lng:121.474},
+  {cat:'transport',name:'轨道交通19/23号线+嘉闵线',role:'华建集团 · 设计',desc:'多条在建轨道线路及市域线设计。',loc:'上海',status:'building',year:'',lat:31.230,lng:121.474},
+
+  // ===== 体育场馆 =====
+  {cat:'sports',name:'浦东足球场',role:'上海院 · 设计',desc:'浦东金桥专业足球场，中超上海海港主场。',loc:'浦东金桥',status:'built',year:'2021',lat:31.2483,lng:121.5912},
+  {cat:'sports',name:'东方体育中心',role:'华东院 · 设计',desc:'世博会配套体育场馆，含游泳馆、体育馆、跳水馆。',loc:'浦东前滩',status:'built',year:'2011',lat:31.1558,lng:121.4800},
+  {cat:'sports',name:'徐家汇体育公园',role:'华建集团 · 设计',desc:'含上海体育场（八万人体育场）+上海体育馆+上海游泳馆整体更新。',loc:'徐汇区',status:'built',year:'',lat:31.1860,lng:121.4370},
+  {cat:'sports',name:'上海国际赛车场',role:'上海院 · 参与设计',desc:'F1中国大奖赛举办地，国际顶级赛道设计。',loc:'嘉定区',status:'built',year:'2004',lat:31.3350,lng:121.2220},
+  {cat:'sports',name:'久事国际马术中心',role:'华建集团 · 设计',desc:'世博文化公园内专业马术场馆。',loc:'浦东世博',status:'built',year:'',lat:31.1820,lng:121.4780},
+  {cat:'sports',name:'静安区全民健身中心',role:'上海院 · 设计',desc:'静安区重要体育设施更新。',loc:'静安区',status:'building',year:'',lat:31.2550,lng:121.4530},
+
+  // ===== 医疗建筑 =====
+  {cat:'healthcare',name:'复旦大学附属中山医院国家医学中心',role:'上海院 · 设计',desc:'上海市重大工程，综合类国家医学中心。',loc:'徐汇区',status:'building',year:'',lat:31.1980,lng:121.4480},
+  {cat:'healthcare',name:'瑞金医院紧急医学救治中心',role:'上海院 · 设计',desc:'上海市重大工程。',loc:'黄浦区',status:'building',year:'',lat:31.2120,lng:121.4660},
+  {cat:'healthcare',name:'第九人民医院祝桥院区',role:'上海院 · 设计',desc:'上海市重大工程，浦东综合医疗新院区。',loc:'浦东祝桥',status:'building',year:'',lat:31.1130,lng:121.7600},
+  {cat:'healthcare',name:'上海市第六人民医院临港院区二期',role:'上海院+建设咨询 · 设计',desc:'临港唯一三甲综合医院扩建。',loc:'浦东临港',status:'building',year:'',lat:30.8980,lng:121.9300},
+  {cat:'healthcare',name:'上海市胸科医院浦东新院区',role:'上海院 · 设计',desc:'浦东唐镇(东至诚乐路/西至玉盘南路)，建面近12万㎡/床位600张，心胸疾病临床医学中心。',loc:'浦东唐镇',status:'building',year:'',lat:31.2220,lng:121.6500},
+  {cat:'healthcare',name:'质子重离子医院二期',role:'上海院 · 设计',desc:'浦东康新公路4365号(上海国际医学园区)，全球最大粒子临床治疗中心，市重大工程。',loc:'浦东周浦',status:'building',year:'',lat:31.1295,lng:121.6146},
+  {cat:'healthcare',name:'第十人民医院肿瘤精准诊疗中心',role:'上海院 · 设计',desc:'静安区延长中路301号院区内，建面约10.3万㎡/地上23层，市重大工程。',loc:'静安区大宁',status:'building',year:'',lat:31.2780,lng:121.4560},
+  {cat:'healthcare',name:'曙光医院门急诊综合楼',role:'建设咨询 · 设计',desc:'黄浦区普安路185号(曙光西院)，毗邻新天地，市重大工程。',loc:'黄浦区普安路',status:'building',year:'',lat:31.2245,lng:121.4760},
+  {cat:'healthcare',name:'龙华医院航头院区二期',role:'上海院 · 设计',desc:'国家医学中心建设项目。',loc:'浦东航头',status:'building',year:'',lat:31.0360,lng:121.5680},
+  {cat:'healthcare',name:'上海市精神卫生中心综合楼',role:'上海院 · 设计',desc:'徐汇区宛平南路600号院区内，现代化生态节约型医院。',loc:'徐汇区宛平南路',status:'building',year:'',lat:31.1900,lng:121.4490},
+  {cat:'healthcare',name:'上海市皮肤病医院科研综合楼',role:'上海院 · 设计',desc:'静安区保德路1278号院区东北角，建面3.76万㎡/地上9层，含重点实验室及教学平台。',loc:'静安区彭浦',status:'building',year:'',lat:31.3085,lng:121.4404},
+  {cat:'healthcare',name:'岳阳中西医结合医院松江院区',role:'华东院 · 设计',desc:'松江新城(东至富永路/毗邻松江站)，一期600床，"济世方舟"设计概念。',loc:'松江区松江新城',status:'building',year:'',lat:31.0140,lng:121.2300},
+
+  // ===== 教育建筑 =====
+  {cat:'education',name:'华东政法大学长宁校区改扩建',role:'上海院+建设咨询 · 设计',desc:'历史建筑保护与更新相结合的高校改扩建。',loc:'长宁区',status:'building',year:'',lat:31.2250,lng:121.4100},
+  {cat:'education',name:'华东师大临港校区',role:'上海院 · 设计',desc:'临港科技城板块(沪城环路/海洋一路)，占地约517亩/建面62万㎡，华东师大第三校区。',loc:'浦东临港',status:'building',year:'',lat:30.9200,lng:121.9100},
+  {cat:'education',name:'上海城建职业学院奉贤校区扩建',role:'上海院 · 设计',desc:'奉贤区南亭公路2080号，建筑与环境艺术/人工智能等学院就读校区。',loc:'奉贤区南亭公路',status:'building',year:'',lat:30.9210,lng:121.4580},
+  {cat:'education',name:'上海大学嘉定校区扩建',role:'建设咨询 · 设计',desc:'嘉定区城中路20号校区内扩建，上海市重大工程。',loc:'嘉定区城中路',status:'building',year:'',lat:31.3900,lng:121.2400},
+
+  // ===== 城市更新/保护 =====
+  {cat:'urbanrenewal',name:'外滩·老市府（160街坊）',role:'华东院+戴卫·奇普菲尔德',desc:'原公共租界工部局大楼+上海首任市政府，建面6.78万㎡，十年打磨，2024年焕新。',loc:'黄浦区外滩',status:'built',year:'2024',lat:31.2403,lng:121.4870},
+  {cat:'urbanrenewal',name:'洛克·外滩源综合改造',role:'华东院 · 保护修缮',desc:'7幢优秀历史建筑保护修缮（含众安·美丰大楼），获首届上海城市更新优秀奖。',loc:'黄浦区外滩',status:'built',year:'',lat:31.2430,lng:121.4880},
+  {cat:'urbanrenewal',name:'汇丰银行大楼（外滩12号）',role:'华东院 · 保护修缮',desc:'1923年建成，"从苏伊士运河到白令海峡最华贵的建筑"。',loc:'黄浦区外滩',status:'built',year:'',lat:31.2398,lng:121.4878},
+  {cat:'urbanrenewal',name:'和平饭店保护与扩建',role:'华东院 · 保护修缮',desc:'沙逊大厦"远东第一楼"，修旧如旧，恢复八角中庭与丰字形长廊。',loc:'黄浦区外滩',status:'built',year:'2010',lat:31.2410,lng:121.4890},
+  {cat:'urbanrenewal',name:'张园西区保护修缮',role:'华建集团 · 保护更新',desc:'上海最大石库门里弄群之一，16栋历史建筑分级保护利用，海派特色商业街。',loc:'静安区',status:'built',year:'2023',lat:31.2278,lng:121.4510},
+  {cat:'urbanrenewal',name:'上生·新所城市更新（一、二期）',role:'华东院 · 更新设计',desc:'封闭科研园区→国际化潮流社区，含哥伦比亚乡村俱乐部、孙科别墅（邬达克设计）。',loc:'长宁区',status:'built',year:'',lat:31.2195,lng:121.4110},
+  {cat:'urbanrenewal',name:'四行仓库修缮',role:'华东院 · 保护修缮',desc:'上海唯一抗战纪念地实体留存，西墙"弹孔"战争痕迹展示+抗战纪念馆。',loc:'静安区苏州河',status:'built',year:'2015',lat:31.2448,lng:121.4715},
+  {cat:'urbanrenewal',name:'上海展览中心外立面修缮',role:'华东院 · 保护修缮',desc:'首批中国20世纪建筑遗产，最大面积水刷石墙面无色差修复，鎏金钢塔复原。',loc:'静安区',status:'built',year:'',lat:31.2285,lng:121.4480},
+  {cat:'urbanrenewal',name:'圣三一堂（红礼拜堂）',role:'华东院 · 保护修缮',desc:'上海最早基督教堂（1847年），获2017 UNESCO亚太文化遗产保护杰出项目奖。',loc:'黄浦区九江路',status:'built',year:'2017',lat:31.2375,lng:121.4840},
+  {cat:'urbanrenewal',name:'雷士德工学院旧址',role:'华东院 · 保护修缮',desc:'1934年哥特复兴+装饰艺术风格，获上海市建筑遗产保护利用示范项目。',loc:'虹口北外滩',status:'built',year:'2023',lat:31.2530,lng:121.4950},
+  {cat:'urbanrenewal',name:'南京路步行街东拓',role:'华东院 · 设计',desc:'南京路步行街向中山东一路延伸约500米，连通外滩。',loc:'黄浦区南京东路',status:'built',year:'2020',lat:31.2395,lng:121.4860},
+  {cat:'urbanrenewal',name:'外滩·中央（179街坊）',role:'华东院 · 保护改建',desc:'中央商场、美伦大楼等成片保护改建，十字玻璃穹顶成标志景观。',loc:'黄浦区南京东路',status:'built',year:'2022',lat:31.2380,lng:121.4840},
+  {cat:'urbanrenewal',name:'上海世茂国际广场改建',role:'华东院 · 更新设计',desc:'南京东路829号(人民广场)，"城市歌剧院"设计理念，改造后3个月完成3.6亿营业额。',loc:'黄浦区南京东路',status:'built',year:'',lat:31.2335,lng:121.4740},
+  {cat:'urbanrenewal',name:'静安宾馆（海格公寓）保护更新',role:'上海院 · 保护活化',desc:'1925-34年西班牙风格建筑，恢复原始公寓功能→高端服务式公寓，获2024绿色低碳更新金奖。',loc:'静安区华山路',status:'built',year:'2024',lat:31.2200,lng:121.4420},
+  {cat:'urbanrenewal',name:'蕃瓜弄小区旧住房改建',role:'华建集团 · 设计',desc:'市中心规模最大"拆落地"项目，14幢老公房→5幢高层+配套设施。',loc:'静安区',status:'building',year:'',lat:31.2520,lng:121.4600},
+  {cat:'urbanrenewal',name:'上海蟠龙天地',role:'华建集团 · 更新设计',desc:'青浦古镇整体风貌保护更新，江南水乡文脉+现代商业融合，"公园里的新天地"。',loc:'青浦区',status:'built',year:'',lat:31.1850,lng:121.2640},
+  {cat:'urbanrenewal',name:'建设大楼外立面修缮',role:'华东院 · 保护修缮',desc:'1936年竣工，现代派兼装饰艺术风格，外滩历史建筑群重要一栋。',loc:'黄浦区外滩',status:'built',year:'2025',lat:31.2390,lng:121.4850},
+  {cat:'urbanrenewal',name:'东亚银行浦西大楼',role:'华东院 · 保护修缮',desc:'1925年装饰艺术派高层建筑，保护修缮+结构加固+机电更新。',loc:'黄浦区外滩',status:'built',year:'',lat:31.2385,lng:121.4845},
+
+  // ===== 总部办公 =====
+  {cat:'office',name:'华东电力设计院办公大楼',role:'华东院 · 设计总包',desc:'普陀武宁路网红地标，"巨型旋风"螺旋楼梯，清水混凝土+耐候钢+珐琅格栅。',loc:'普陀区武宁路',status:'built',year:'2024',lat:31.2405,lng:121.4180},
+  {cat:'office',name:'上海银行浦西总部大楼',role:'上海院 · 设计（Gensler合作）',desc:'150m超高层金融总部，南外滩绿地外滩金融中心T2塔楼。',loc:'黄浦区南外滩',status:'built',year:'',lat:31.2220,lng:121.5020},
+  {cat:'office',name:'海通证券总部园区',role:'华建集团 · 设计',desc:'南外滩绿地外滩金融中心B1-B3楼，已率先投入运营。',loc:'黄浦区南外滩',status:'built',year:'',lat:31.2225,lng:121.5015},
+  {cat:'office',name:'中国电气装备总部园区',role:'华建集团 · 设计',desc:'央企总部园区，占地1.66万㎡/建面7.2万㎡，2023年开工，上海市重大工程。',loc:'静安区江宁路',status:'building',year:'',lat:31.242,lng:121.451},
+  {cat:'office',name:'中国船舶集团上海科研基地',role:'华东院 · 设计',desc:'原江南造船厂旧址，浦西后世博核心地标。',loc:'浦西世博',status:'building',year:'',lat:31.1975,lng:121.4805},
+
+  // ===== 商业/综合体 =====
+  {cat:'commercial',name:'世博天地',role:'上海院 · 设计',desc:'32万㎡全业态综合体，甲级办公+高端酒店+精品商业，2024年底全面投用。',loc:'浦东世博',status:'built',year:'2024',lat:31.1870,lng:121.4840},
+  {cat:'commercial',name:'中信泰富广场改造',role:'华东院 · 更新设计',desc:'"像素盒子"立面设计，南京西路商圈地标焕新。',loc:'静安区南京西路',status:'built',year:'',lat:31.2285,lng:121.4470},
+  {cat:'commercial',name:'新世界城装修和外立面维修',role:'华东院 · 更新设计',desc:'南京西路2-68号(人民广场)，十里南京路传统商业转型升级标杆。',loc:'黄浦区南京西路',status:'built',year:'',lat:31.2350,lng:121.4735},
+  {cat:'commercial',name:'百联西郊购物中心整体改建',role:'华东院 · 更新设计',desc:'长宁区仙霞西路88号，国内首个北美风格开放式花园购物中心/2023年焕新，商业面积11万㎡。',loc:'长宁区仙霞西路',status:'built',year:'',lat:31.2240,lng:121.3830},
+  {cat:'commercial',name:'张江中区商业综合体',role:'上海院 · 设计',desc:'大型中高端购物中心"无限空间SpaceX"。',loc:'浦东张江',status:'building',year:'',lat:31.2050,lng:121.5850},
+
+  // ===== 酒店/住宅 =====
+  {cat:'hotel',name:'北外滩77街坊雅诗阁酒店公寓',role:'华东院 · 设计总包',desc:'以"风帆"为造型意象，ArtDeco风格，装配式单元幕墙，2024年底开业。',loc:'虹口北外滩',status:'built',year:'2024',lat:31.2525,lng:121.4965},
+  {cat:'hotel',name:'金桥元中心二期·瑞吉酒店+云端住宅',role:'华东院 · 设计总包',desc:'330m塔楼含上海首个主题室外观光平台+200m上海最高住宅楼（88套云端私邸）。',loc:'浦东金桥',status:'building',year:'',lat:31.2620,lng:121.5700},
+  {cat:'hotel',name:'迪士尼社区项目',role:'华东院 · 原创设计',desc:'16.3万㎡租赁住宅+商业，采用"立体围院"模式，方案征集第一名。',loc:'浦东国际旅游度假区',status:'design',year:'',lat:31.1450,lng:121.6600},
+  {cat:'hotel',name:'张江科学家公寓',role:'上海院 · 原创设计',desc:'整合历史建筑更新+新建公建+高端住宅，产城融合典范。',loc:'浦东张江',status:'building',year:'',lat:31.2050,lng:121.5800},
+  {cat:'hotel',name:'张江雍翠75',role:'上海院 · 设计',desc:'15.3万㎡/693套租赁住宅，毗邻张江科学之门。',loc:'浦东张江',status:'built',year:'',lat:31.2060,lng:121.5820},
+
+  // ===== 会展/博览 =====
+  {cat:'expo',name:'国家会展中心（"四叶草"）',role:'华东院 · 设计',desc:'中国国际进口博览会永久场馆，世界最大单体会展建筑之一。',loc:'青浦区虹桥',status:'built',year:'2015',lat:31.1922,lng:121.3140},
+  {cat:'expo',name:'西岸国际会展中心',role:'华东院 · 设计总包',desc:'"钻石"造型建筑/建面约8万㎡，含6000㎡+4000㎡无柱多功能厅，2025年竣工。',loc:'徐汇西岸',status:'built',year:'2025',lat:31.1670,lng:121.4600},
+  {cat:'expo',name:'世博中心',role:'华东院 · 设计',desc:'2010世博会永久建筑，现为重要政务与国际会议场所。',loc:'浦东世博',status:'built',year:'2010',lat:31.1880,lng:121.4840},
+  {cat:'expo',name:'中国国家馆（中华艺术宫）',role:'华东院 · 设计',desc:'2010世博会标志，"东方之冠"造型，现为中华艺术宫永久场馆。',loc:'浦东世博',status:'built',year:'2010',lat:31.1865,lng:121.4835},
+  {cat:'expo',name:'世博文化中心',role:'华东院 · 设计',desc:'梅赛德斯-奔驰文化中心，浦江最具辨识度的演艺场馆之一。',loc:'浦东世博',status:'built',year:'2010',lat:31.1890,lng:121.4850},
+  {cat:'expo',name:'上海工业博物馆',role:'华东院+隈研吾 · 联合设计',desc:'江南制造总局旧址（1865年），建面约11万㎡，"新外滩工博群"，预计2027年。',loc:'浦西世博',status:'building',year:'2027',lat:31.1975,lng:121.4805},
+  {cat:'expo',name:'西岸梦中心（Gate M）',role:'环境院 · 景观设计',desc:'原上海水泥厂改造，"水岸共生"滨水商业文旅地标，市级旅游休闲街区。',loc:'徐汇西岸',status:'built',year:'',lat:31.1680,lng:121.4610},
+  {cat:'expo',name:'宋城演艺·世博大舞台',role:'华东院 · 改造设计',desc:'建面4.12万㎡，由宝钢大舞台改造而来，工业遗存活化典范。',loc:'浦东世博',status:'built',year:'2020',lat:31.1885,lng:121.4820},
+
+  // ===== 科研设施 =====
+  {cat:'research',name:'上海光源工程（"鹦鹉螺"）',role:'上海院 · 设计',desc:'全球科学家在此实验，奠定上海科技创新中心地位，国家级大科学装置。',loc:'浦东张江',status:'built',year:'2009',lat:31.2050,lng:121.5780},
+  {cat:'research',name:'硬X射线自由电子激光装置',role:'华建集团 · 设计',desc:'世界级大科学装置，张江综合性国家科学中心核心设施。',loc:'浦东张江',status:'building',year:'',lat:31.2060,lng:121.5800},
+
+  // ===== 滨江综合开发 =====
+  {cat:'commercial',name:'西岸传媒港',role:'上海院 · 总控设计',desc:'上海首个地下空间整体开发，"九宫格"布局，含腾讯、央视、芒果广场等，地上55万+地下45万㎡。',loc:'徐汇西岸',status:'built',year:'2022',lat:31.1650,lng:121.4590},
+  {cat:'commercial',name:'西岸金融城',role:'华东院 · 总体设计',desc:'占地约23万㎡/计容近109万㎡，上海中心城区最大规模整体开发之一。',loc:'徐汇西岸',status:'building',year:'',lat:31.1690,lng:121.4620},
+  {cat:'urbanrenewal',name:'南外滩金融中心',role:'华东院 · 设计总包',desc:'总建面约41万㎡，9栋新建+6栋保留建筑，外滩金融集聚带"最后拼图"。',loc:'黄浦区董家渡',status:'building',year:'',lat:31.2200,lng:121.5020},
+  {cat:'urbanrenewal',name:'上海国际时尚中心',role:'华东院 · 改造设计',desc:'原第十七棉纺织总厂改造/建面14万㎡，亚洲建筑师协会保护类提名奖。',loc:'杨浦滨江',status:'built',year:'2014',lat:31.2720,lng:121.5270},
+  {cat:'urbanrenewal',name:'杨树浦路670号（怡和纱厂）',role:'华东院 · 保护修缮',desc:'英商怡和纱厂旧址/建面2.46万㎡（1896年），恽代英烈士被捕处。',loc:'杨浦滨江',status:'built',year:'2024',lat:31.2680,lng:121.5220},
+  {cat:'commercial',name:'三林滨江综合开发',role:'华建集团 · 规划实施平台',desc:'总用地约4.2km²，黄浦江核心区成片开发，"城中村"改造标杆。',loc:'浦东三林',status:'building',year:'',lat:31.1430,lng:121.4940},
+  {cat:'culture',name:'西岸大剧院',role:'华建集团 · 设计',desc:'西岸文化艺术场馆群落重要组成，滨江文化新地标。',loc:'徐汇西岸',status:'built',year:'',lat:31.1675,lng:121.4615},
+  {cat:'expo',name:'上海国际邮轮旅游度假区',role:'景域园林+环境院 · 设计',desc:'6km滨江景观提升/约5.5万㎡，"上海最美骑行道"，2024年竣工。',loc:'宝山滨江',status:'built',year:'2024',lat:31.4100,lng:121.4920},
+  {cat:'culture',name:'世界会客厅',role:'华东院 · 设计',desc:'建面9.9万㎡/原扬子江码头，上海接待国内外重要宾客标志性建筑，获市优秀设计一等奖。',loc:'虹口北外滩',status:'built',year:'2021',lat:31.2470,lng:121.4920},
+  {cat:'culture',name:'西岸自然艺术公园（二期）',role:'环境院 · 总控+总体设计',desc:'总面积约55公顷/岸线2.4km，市级焦点公园。',loc:'徐汇西岸',status:'design',year:'',lat:31.1550,lng:121.4550},
+  {cat:'office',name:'阿里巴巴徐汇滨江项目一期',role:'环境院 · 设计',desc:'滨江科技企业总部，西岸数字经济产业集群组成部分。',loc:'徐汇西岸',status:'built',year:'',lat:31.1660,lng:121.4580},
+  {cat:'urbanrenewal',name:'艾迪逊酒店（华东电力调度大楼改造）',role:'华东院 · 改建设计',desc:'1988年大楼→奢华酒店，全国首家城市更新碳中和酒店。',loc:'黄浦区南京东路',status:'built',year:'',lat:31.2405,lng:121.4845},
+  {cat:'urbanrenewal',name:'华为全球旗舰店（南京大楼）',role:'华东院 · 保护修缮',desc:'1935年哈同大楼，历史与未来的融合设计。',loc:'黄浦区南京东路',status:'built',year:'2020',lat:31.2390,lng:121.4840},
+  {cat:'commercial',name:'新天地南里商场更新',role:'华东院 · 更新设计',desc:'2020年底开放，获BEST 50最佳生活方式地标奖。',loc:'黄浦区新天地',status:'built',year:'2020',lat:31.2200,lng:121.4750},
+  {cat:'urbanrenewal',name:'安康苑一期',role:'华东院 · 保护更新',desc:'上海风貌建筑留存较完善、数量庞大的更新项目，含山西大剧院、吴昌硕故居。',loc:'静安区',status:'building',year:'',lat:31.2480,lng:121.4620},
+  {cat:'urbanrenewal',name:'武夷路155号仪电地块',role:'华东院 · 有机更新',desc:'工业遗存有机更新，米色陶板+红砖与比利时领事馆材质对话。',loc:'长宁区',status:'built',year:'',lat:31.2190,lng:121.4150},
+  {cat:'healthcare',name:'华东医院南楼（原宏恩医院）',role:'华东院 · 保护修缮',desc:'保护性修缮+先进顶升隔震技术，延长文物使用寿命。',loc:'静安区',status:'built',year:'',lat:31.2220,lng:121.4430},
+  {cat:'hotel',name:'世博中心综合楼（酒店）',role:'华东院 · 原创设计',desc:'建面4万㎡，与世博中心连廊贯通，2024年全新开业。',loc:'浦东世博',status:'built',year:'2024',lat:31.1885,lng:121.4835},
+];
+
+// ===== BUILD UI =====
+function buildAll() {
+  // Category nav tabs
+  const catNav = document.getElementById('cat-nav-inner');
+  catNav.innerHTML = '<button class="cat-tab active" data-cat="all"><span class="emoji">📋</span>全部</button>' +
+    categories.map(c => `<button class="cat-tab" data-cat="${c.id}"><span class="emoji">${c.emoji}</span>${c.name}</button>`).join('');
+
+  // Project sections
+  const sections = document.getElementById('project-sections');
+  let html = '';
+  categories.forEach((cat, idx) => {
+    const catProjects = projects.filter(p => p.cat === cat.id);
+    if (catProjects.length === 0) return;
+    html += `<div class="area-block" data-cat="${cat.id}">
+      <div class="area-title"><span class="num">${String(idx+1).padStart(2,'0')}</span> ${cat.emoji} ${cat.name}</div>
+      <div class="area-sub">共 ${catProjects.length} 个项目</div>
+      <div class="card-grid">`;
+    catProjects.forEach(p => {
+      const statusClass = p.status === 'built' ? 'tag-built' : p.status === 'building' ? 'tag-building' : 'tag-design';
+      const statusText = p.status === 'built' ? `✅ ${p.year||'已建成'}` : p.status === 'building' ? `🔨 ${p.year||'在建'}` : `📐 ${p.year||'设计中'}`;
+      html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}">
+        <div class="card-name">${p.name}</div>
+        <div class="card-role">${p.role}</div>
+        <div class="card-desc">${p.desc}</div>
+        <div class="card-footer">
+          <span class="card-meta"><span class="card-tag ${statusClass}">${statusText}</span><span class="tag-location">📍 ${p.loc}</span></span>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  sections.innerHTML = html;
+}
+
+// ===== FILTER LOGIC =====
+let activeCat = 'all';
+let activeStatus = 'all';
+let searchQuery = '';
+
+function applyFilters() {
+  document.querySelectorAll('.card').forEach(card => {
+    const catMatch = activeCat === 'all' || card.dataset.cat === activeCat;
+    const statusMatch = activeStatus === 'all' || card.dataset.status === activeStatus;
+    const searchMatch = !searchQuery || card.dataset.search.toLowerCase().includes(searchQuery.toLowerCase());
+    card.style.display = catMatch && statusMatch && searchMatch ? '' : 'none';
+  });
+  // Show/hide sections
+  document.querySelectorAll('.area-block').forEach(block => {
+    const visibleCards = block.querySelectorAll('.card[style*="display: none"]').length;
+    const totalCards = block.querySelectorAll('.card').length;
+    if (activeCat !== 'all') {
+      block.style.display = block.dataset.cat === activeCat ? '' : 'none';
+    } else {
+      block.style.display = visibleCards === totalCards && (activeStatus !== 'all' || searchQuery) ? 'none' : '';
+    }
+  });
+}
+
+// ===== EVENT BINDINGS =====
+document.addEventListener('DOMContentLoaded', () => {
+  buildAll();
+
+  // Category tabs
+  document.querySelectorAll('#cat-nav-inner .cat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#cat-nav-inner .cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeCat = tab.dataset.cat;
+      applyFilters();
+      if (activeCat !== 'all') {
+        const target = document.querySelector(`.area-block[data-cat="${activeCat}"]`);
+        if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  });
+
+  // Status filter
+  document.querySelectorAll('#statusFilter .filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#statusFilter .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeStatus = btn.dataset.status;
+      applyFilters();
+    });
+  });
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    applyFilters();
+  });
+
+  // Nav smooth scroll
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector('.nav-links').classList.remove('open');
+      const id = link.getAttribute('href');
+      if (id && id !== '#') document.querySelector(id).scrollIntoView({behavior:'smooth'});
+    });
+  });
+});
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
+</body>
+</html>
