@@ -149,6 +149,36 @@ body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;col
   .stat-item{padding:14px 18px;min-width:90px}
   .stat-item .n{font-size:22px}
 }
+
+/* ===== Modal ===== */
+.modal-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:.3s}
+.modal-overlay.open{opacity:1;visibility:visible}
+.modal-content{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative}
+.modal-close{position:absolute;top:12px;right:16px;width:36px;height:36px;border-radius:50%;border:none;background:rgba(0,0,0,0.5);color:#fff;font-size:20px;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;transition:.2s}
+.modal-close:hover{background:#DB0A1F}
+.modal-hero{width:100%;height:260px;object-fit:cover;display:block;background:linear-gradient(135deg,#2d0506,#5a0a14);border-radius:14px 14px 0 0}
+.modal-body{padding:24px 28px 28px}
+.modal-body h3{font-size:22px;color:#1a1a2e;margin-bottom:6px}
+.modal-body .modal-role{font-size:13px;color:#DB0A1F;font-weight:600;margin-bottom:4px}
+.modal-body .modal-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.modal-body .modal-meta span{padding:4px 14px;border-radius:50px;font-size:12px;font-weight:600}
+.modal-meta .m-status-built{background:#e8f5e9;color:#2e7d32}
+.modal-meta .m-status-building{background:#fff3e0;color:#e65100}
+.modal-meta .m-status-design{background:#fde8e8;color:#9b1a1a}
+.modal-meta .m-loc{background:#f5f5f5;color:#555}
+.modal-body .modal-desc{font-size:14.5px;color:#444;line-height:1.85;margin-bottom:16px}
+.modal-body .modal-facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 18px;background:#fdf7f7;border-radius:10px;border:1px solid #f0d0d0}
+.modal-facts .fact-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+.modal-facts .fact-value{font-size:15px;font-weight:700;color:#1a1a2e}
+.card{cursor:pointer}
+@media(max-width:768px){.modal-hero-wrap{height:180px}.modal-body{padding:18px}.modal-facts{grid-template-columns:1fr}}
+
+
+.modal-hero-wrap{position:relative;border-radius:14px 14px 0 0;overflow:hidden;height:260px;background:linear-gradient(135deg,#2d0506,#5a0a14)}
+.modal-hero{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1}
+.modal-hero-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0}
+.modal-hero-fallback span{font-size:64px;opacity:0.3}
+@media(max-width:768px){.modal-hero-wrap{height:180px}}
 </style>
 </head>
 <body>
@@ -281,6 +311,30 @@ body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;col
   <p style="margin-top:8px;color:#DB0A1F">Arcplus 华东建筑集团股份有限公司 · 上海</p>
 </footer>
 
+<!-- ====== PROJECT DETAIL MODAL ====== -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-hero-wrap"><img class="modal-hero" id="modalImg" src="" alt=""><div class="modal-hero-fallback" id="modalFallback"><span id="modalFallbackIcon"></span></div></div>
+    <div class="modal-body">
+      <h3 id="modalName"></h3>
+      <div class="modal-role" id="modalRole"></div>
+      <div class="modal-meta">
+        <span id="modalStatus"></span>
+        <span class="m-loc" id="modalLoc"></span>
+      </div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-facts">
+        <div><div class="fact-label">建筑类别</div><div class="fact-value" id="modalCat"></div></div>
+        <div><div class="fact-label">年份</div><div class="fact-value" id="modalYear"></div></div>
+        <div><div class="fact-label">设计单位</div><div class="fact-value" id="modalDesigner"></div></div>
+        <div><div class="fact-label">坐标</div><div class="fact-value" id="modalCoords"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- ====== DATA & SCRIPTS ====== -->
 <script>
 // Category colors for markers
@@ -324,13 +378,13 @@ function initMap() {
     }
   });
 
-  markers.forEach(m => {
+  markers.forEach((m, i) => {
     const icon = L.divIcon({
       html:`<div style="background:${m.color};width:16px;height:16px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,0.35)"></div>`,
       className:'',iconSize:[16,16],iconAnchor:[8,8]
     });
     const marker = L.marker([m.lat, m.lng], {icon});
-    marker.bindPopup(`<div>${m.img?`<img class="popup-img" src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.display='none'">`:''}<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span class="popup-desc">${m.desc}</span></div>`);
+    marker.bindPopup(`<div>${m.img?`<img class="popup-img" src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.display='none'">`:''}<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span class="popup-desc">${m.desc.substring(0,120)}${m.desc.length>120?'…':''}</span><br><a href="javascript:void(0)" onclick="openModal(projects[${i}])" style="display:inline-block;margin-top:6px;padding:5px 14px;background:#DB0A1F;color:#fff;border-radius:50px;font-size:11px;text-decoration:none;font-weight:600">📋 查看详情</a></div>`);
     clusterGroup.addLayer(marker);
   });
 
@@ -535,10 +589,10 @@ function buildAll() {
       <div class="area-title"><span class="num">${String(idx+1).padStart(2,'0')}</span> ${cat.emoji} ${cat.name}</div>
       <div class="area-sub">共 ${catProjects.length} 个项目</div>
       <div class="card-grid">`;
-    catProjects.forEach(p => {
+    catProjects.forEach((p, pi) => {
       const statusClass = p.status === 'built' ? 'tag-built' : p.status === 'building' ? 'tag-building' : 'tag-design';
       const statusText = p.status === 'built' ? `✅ ${p.year||'已建成'}` : p.status === 'building' ? `🔨 ${p.year||'在建'}` : `📐 ${p.year||'设计中'}`;
-      html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}">
+      html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}" data-pidx="${pi}" onclick="openModal(projects[${pi}])">
 	        ${p.img?'<img class=\"card-img\" src=\"'+p.img+'\" alt=\"'+p.name+'\" loading=\"lazy\" onerror=\"this.style.display=\\'none\\'\">':''}
 	        <div class="card-body">
         <div class="card-name">${p.name}</div>
@@ -626,6 +680,63 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin="">
+// ===== MODAL LOGIC =====
+function openModal(p) {
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalRole').textContent = p.role;
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalLoc').textContent = '📍 ' + p.loc;
+
+  var img = document.getElementById('modalImg');
+  var fallback = document.getElementById('modalFallback');
+  var fbIcon = document.getElementById('modalFallbackIcon');
+  // Category emoji for fallback
+  var catEmoji = {supertall:'🏗️',culture:'🎭',transport:'✈️',sports:'🏟️',healthcare:'🏥',education:'🎓',urbanrenewal:'🏛️',office:'🏢',commercial:'🏬',hotel:'🏨',expo:'🎪',research:'🔬'};
+  if (p.img) {
+    img.src = p.img;
+    img.style.display = '';
+    fallback.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    fallback.style.display = '';
+    fbIcon.textContent = catEmoji[p.cat] || '🏗️';
+  }
+
+  var statusEl = document.getElementById('modalStatus');
+  if (p.status === 'built') {
+    statusEl.className = 'm-status-built';
+    statusEl.textContent = '✅ ' + (p.year || '已建成');
+  } else if (p.status === 'building') {
+    statusEl.className = 'm-status-building';
+    statusEl.textContent = '🔨 ' + (p.year || '在建');
+  } else {
+    statusEl.className = 'm-status-design';
+    statusEl.textContent = '📐 ' + (p.year || '设计中');
+  }
+
+  var catNames = {supertall:'超高层/天际线',culture:'文化场馆',transport:'交通枢纽',sports:'体育场馆',healthcare:'医疗建筑',education:'教育建筑',urbanrenewal:'城市更新/保护',office:'总部办公',commercial:'商业/综合体',hotel:'酒店/住宅',expo:'会展/博览',research:'科研设施'};
+  document.getElementById('modalCat').textContent = catNames[p.cat] || p.cat;
+  document.getElementById('modalYear').textContent = p.year || '—';
+  document.getElementById('modalDesigner').textContent = p.role.split('·')[0].trim();
+  document.getElementById('modalCoords').textContent = p.lat.toFixed(4) + ', ' + p.lng.toFixed(4);
+
+  document.getElementById('projectModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('projectModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var modal = document.getElementById('projectModal');
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+});
+
+</script>
 </body>
 </html>
