@@ -283,6 +283,26 @@ body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;col
 
 <!-- ====== DATA & SCRIPTS ====== -->
 <script>
+
+// Global image error fallback
+document.addEventListener('DOMContentLoaded', function() {
+  // Hide broken images
+  document.querySelectorAll('img.card-img, img.popup-img').forEach(function(img) {
+    img.addEventListener('error', function() { this.style.display = 'none'; });
+  });
+  // Re-apply after dynamic content loads
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.addedNodes.forEach(function(node) {
+        if (node.tagName === 'IMG' && (node.classList.contains('card-img') || node.classList.contains('popup-img'))) {
+          node.addEventListener('error', function() { this.style.display = 'none'; });
+        }
+      });
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+});
+
 // Category colors for markers
 const catColors = {
   supertall:'#e65100',culture:'#7b1fa2',transport:'#1565c0',sports:'#2e7d32',
@@ -539,7 +559,7 @@ function buildAll() {
       const statusClass = p.status === 'built' ? 'tag-built' : p.status === 'building' ? 'tag-building' : 'tag-design';
       const statusText = p.status === 'built' ? `✅ ${p.year||'已建成'}` : p.status === 'building' ? `🔨 ${p.year||'在建'}` : `📐 ${p.year||'设计中'}`;
       html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}">
-	        ${p.img?'<img class=\"card-img\" src=\"'+p.img+'\" alt=\"'+p.name+'\" loading=\"lazy\" onerror=\"this.style.display=\\'none\\'\">':''}
+	        ${p.img?'<img class=\"card-img\" src=\"'+p.img+'\" alt=\"'+p.name+'\" loading=\"lazy\" onerror=\"this.style.display=\'none\'\">':''}
 	        <div class="card-body">
         <div class="card-name">${p.name}</div>
         <div class="card-role">${p.role}</div>
