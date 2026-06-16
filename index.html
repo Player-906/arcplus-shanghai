@@ -559,7 +559,7 @@ function buildAll() {
       const statusClass = p.status === 'built' ? 'tag-built' : p.status === 'building' ? 'tag-building' : 'tag-design';
       const statusText = p.status === 'built' ? `✅ ${p.year||'已建成'}` : p.status === 'building' ? `🔨 ${p.year||'在建'}` : `📐 ${p.year||'设计中'}`;
       html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}">
-	        ${p.img?'<img class=\"card-img\" src=\"'+p.img+'\" alt=\"'+p.name+'\" loading=\"lazy\" onerror=\"this.style.display=\'none\'\">':''}
+	        ${p.img?'<img class=\"card-img\" src=\"'+p.img+'\" alt=\"'+p.name+'\" loading=\"lazy\">':''}
 	        <div class="card-body">
         <div class="card-name">${p.name}</div>
         <div class="card-role">${p.role}</div>
