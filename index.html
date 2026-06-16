@@ -18,8 +18,10 @@ body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;col
 .map-section h2{text-align:center;font-size:26px;padding:50px 20px 0;background:#fff}
 .map-section .section-sub{text-align:center;color:#888;padding:6px 20px 24px;background:#fff;font-size:15px}
 .map-container{width:100%;height:550px;z-index:1}
-.map-container .leaflet-popup-content{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;min-width:200px}
+.map-container .leaflet-popup-content{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.6;min-width:220px;max-width:300px}
 .map-container .leaflet-popup-content strong{font-size:15px;color:#DB0A1F}
+.map-container .leaflet-popup-content img.popup-img{width:100%;height:150px;object-fit:cover;border-radius:6px;margin-bottom:8px;display:block}
+.map-container .leaflet-popup-content .popup-desc{color:#555;font-size:12.5px;line-height:1.65}
 .map-legend{background:rgba(255,255,255,0.95);padding:12px 16px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.12);font-size:12px;line-height:1.8}
 .map-legend span{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .map-info-banner{background:#DB0A1F;color:#fff;text-align:center;padding:12px 20px;font-size:13px}
@@ -83,8 +85,10 @@ body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;col
 .area-title .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:#DB0A1F;color:#fff;border-radius:50%;font-size:15px;flex-shrink:0}
 .area-sub{color:#888;font-size:14px;margin-bottom:18px}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-.card{background:#fff;border-radius:10px;padding:18px 20px;border:1px solid #f0d0d0;transition:.2s;display:flex;flex-direction:column;gap:8px}
+.card{background:#fff;border-radius:10px;padding:0;border:1px solid #f0d0d0;transition:.2s;display:flex;flex-direction:column;overflow:hidden}
 .card:hover{box-shadow:0 6px 24px rgba(0,0,0,0.08);transform:translateY(-2px)}
+.card-img{width:100%;height:160px;object-fit:cover;display:block;background:#fdf0f0}
+.card-body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
 .card-name{font-size:16px;font-weight:700;color:#1a1a2e}
 .card-role{font-size:12px;color:#DB0A1F;font-weight:600}
 .card-desc{font-size:13.5px;color:#666;line-height:1.6;flex:1}
@@ -292,7 +296,7 @@ function buildMarkers() {
     const lat = p.lat, lng = p.lng;
     const color = catColors[p.cat] || '#666';
     const statusText = p.status==='built'?'✅ '+(p.year||'已建成'):p.status==='building'?'🔨 '+(p.year||'在建'):'📐 '+(p.year||'设计中');
-    return {lat,lng,color,name:p.name,role:p.role,desc:p.desc,loc:p.loc,statusText,cat:p.cat};
+    return {lat,lng,color,name:p.name,role:p.role,desc:p.desc,loc:p.loc,statusText,cat:p.cat,img:p.img||'';
   });
 }
 
@@ -326,7 +330,7 @@ function initMap() {
       className:'',iconSize:[16,16],iconAnchor:[8,8]
     });
     const marker = L.marker([m.lat, m.lng], {icon});
-    marker.bindPopup(`<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span style="color:#555">${m.desc.substring(0,80)}${m.desc.length>80?'…':''}</span>`);
+    marker.bindPopup(`<div>${m.img?`<img class="popup-img" src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.display='none'">`:''}<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span class="popup-desc">${m.desc}</span></div>`);
     clusterGroup.addLayer(marker);
   });
 
@@ -358,23 +362,23 @@ const categories = [
 
 const projects = [
   // ===== 超高层/天际线 =====
-  {cat:'supertall',name:'东方明珠广播电视塔',role:'华东院 · 原创设计',desc:'468米，上海城市名片。总设计师江欢成，"大珠小珠落玉盘"。中国人自己投资、设计、施工、经营。',loc:'浦东陆家嘴',status:'built',year:'1995',lat:31.2417,lng:121.4947},
-  {cat:'supertall',name:'金茂大厦',role:'华东院 · 顾问设计监理',desc:'420.5米/88层，SOM+华东院合作，新中国50周年上海十大经典建筑金奖第一名。2024华东院中标全面焕新。',loc:'浦东陆家嘴',status:'built',year:'1999',lat:31.2373,lng:121.5014},
-  {cat:'supertall',name:'上海环球金融中心',role:'华东院 · 中方合作设计',desc:'492米，陆家嘴"三件套"之一，一度为中国大陆第一高楼，独特的倒梯形风洞造型。',loc:'浦东陆家嘴',status:'built',year:'2008',lat:31.2366,lng:121.5027},
+  {cat:'supertall',name:'东方明珠广播电视塔',role:'华东院 · 原创设计',desc:'468米，上海城市名片。总设计师江欢成，"大珠小珠落玉盘"。中国人自己投资、设计、施工、经营。11个大小不一球体串联，集广播电视发射、观光、餐饮、购物于一体，年接待游客超500万人次。',loc:'浦东陆家嘴',status:'built',year:'1995',lat:31.2417,lng:121.4947,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Oriental_Pearl_Tower_2006.jpg/400px-Oriental_Pearl_Tower_2006.jpg'},
+  {cat:'supertall',name:'金茂大厦',role:'华东院 · 顾问设计监理',desc:'420.5米/88层，SOM+华东院合作，新中国50周年上海十大经典建筑金奖第一名。2024华东院中标全面焕新。融合中国塔型与西方超高层技术，88层观光厅为上海最高观光点之一。',loc:'浦东陆家嘴',status:'built',year:'1999',lat:31.2373,lng:121.5014,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Jin_Mao_Tower_%282008%29.jpg/400px-Jin_Mao_Tower_%282008%29.jpg'},
+  {cat:'supertall',name:'上海环球金融中心',role:'华东院 · 中方合作设计',desc:'492米，陆家嘴"三件套"之一，一度为中国大陆第一高楼，独特的倒梯形风洞造型。',loc:'浦东陆家嘴',status:'built',year:'2008',lat:31.2366,lng:121.5027,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Shanghai_World_Financial_Center_2009.jpg/400px-Shanghai_World_Financial_Center_2009.jpg'},
   {cat:'supertall',name:'北外滩91街坊',role:'华东院 · 设计总控',desc:'480米浦西第一高楼，建面44.6万㎡，未来上海城市形象新名片，与陆家嘴隔江对望。',loc:'虹口北外滩',status:'building',year:'2030',lat:31.2547,lng:121.4982},
   {cat:'supertall',name:'张江"科学之门"双子塔',role:'华东院+Genlser · 联合设计',desc:'320m×2，上海最高双子塔，2025年交付，获CTBUH全球奖最佳高层建筑奖。',loc:'浦东张江',status:'built',year:'2025',lat:31.2057,lng:121.5795},
   {cat:'supertall',name:'金桥元中心',role:'华东院 · 设计总包',desc:'330米，金桥副中心最高地标，含上海首个瑞吉酒店主题室外观光平台+200m最高住宅楼。',loc:'浦东金桥',status:'building',year:'',lat:31.2620,lng:121.5700},
   {cat:'supertall',name:'上海国际航运金融大厦',role:'华东院 · 设计',desc:'232米/地上50层，获鲁班奖。2024年完成城市更新蝶变升级，楼宇更新实践先行者。',loc:'浦东陆家嘴',status:'built',year:'1999',lat:31.2416,lng:121.5207},
-  {cat:'supertall',name:'新开发银行总部大楼',role:'华东院 · 设计总包',desc:'150米/建面12.6万㎡，中国首个超高层健康建筑（绿建三星+LEED铂金+健康三星），2021年交付。',loc:'浦东世博',status:'built',year:'2021',lat:31.1860,lng:121.4890},
+  {cat:'supertall',name:'新开发银行总部大楼',role:'华东院 · 设计总包',desc:'150米/建面12.6万㎡，中国首个超高层健康建筑（绿建三星+LEED铂金+健康三星），2021年交付。',loc:'浦东世博',status:'built',year:'2021',lat:31.1860,lng:121.4890,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/New_Development_Bank_Headquarters_Shanghai.jpg/400px-New_Development_Bank_Headquarters_Shanghai.jpg'},
   {cat:'supertall',name:'北外滩90街坊',role:'华东院 · 设计',desc:'建面15万㎡超高层商办文化综合体，北外滩核心区重要拼图。',loc:'虹口北外滩',status:'building',year:'2028',lat:31.2540,lng:121.4970},
 
   // ===== 文化场馆 =====
-  {cat:'culture',name:'上海博物馆',role:'上海院 · 邢同和主持设计',desc:'人民广场文化地标，"天圆地方"造型，获多项国家大奖，上海文化名片。',loc:'黄浦区人民广场',status:'built',year:'1996',lat:31.2303,lng:121.4706},
+  {cat:'culture',name:'上海博物馆',role:'上海院 · 邢同和主持设计',desc:'人民广场文化地标，"天圆地方"造型，获多项国家大奖，上海文化名片。',loc:'黄浦区人民广场',status:'built',year:'1996',lat:31.2303,lng:121.4706,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Shanghai_Museum_2012.jpg/400px-Shanghai_Museum_2012.jpg'},
   {cat:'culture',name:'上海图书馆',role:'上海院 · 唐玉恩设计',desc:'淮海中路文化地标，已成为"书香上海"的象征。',loc:'徐汇区淮海中路',status:'built',year:'1996',lat:31.2095,lng:121.4447},
-  {cat:'culture',name:'上海图书馆东馆',role:'上海院 · 设计',desc:'浦东花木核心文化地标，新一代智慧图书馆典范。',loc:'浦东花木',status:'built',year:'2022',lat:31.2086,lng:121.5460},
+  {cat:'culture',name:'上海图书馆东馆',role:'上海院 · 设计',desc:'浦东花木核心文化地标，新一代智慧图书馆典范。',loc:'浦东花木',status:'built',year:'2022',lat:31.2086,lng:121.5460,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Shanghai_Library_East_Building.jpg/400px-Shanghai_Library_East_Building.jpg'},
   {cat:'culture',name:'上海大歌剧院',role:'华建集团 · 设计',desc:'"十三五"重大文化设施，上海建设国际文化大都市核心载体之一，世博后滩。',loc:'浦东世博后滩',status:'building',year:'',lat:31.1780,lng:121.4770},
-  {cat:'culture',name:'上海天文馆',role:'上海院 · 设计',desc:'临港世界级天文馆，主入口大悬挑钢结构61米跨度，全球最大天文馆。',loc:'浦东临港',status:'built',year:'2021',lat:30.9137,lng:121.9240},
-  {cat:'culture',name:'上海科技馆',role:'上海院 · 设计',desc:'浦东经典科普地标，获多项国家大奖。',loc:'浦东花木',status:'built',year:'2001',lat:31.2207,lng:121.5410},
+  {cat:'culture',name:'上海天文馆',role:'上海院 · 设计',desc:'临港世界级天文馆，主入口大悬挑钢结构61米跨度，全球最大天文馆。',loc:'浦东临港',status:'built',year:'2021',lat:30.9137,lng:121.9240,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Shanghai_Astronomy_Museum_2021.jpg/400px-Shanghai_Astronomy_Museum_2021.jpg'},
+  {cat:'culture',name:'上海科技馆',role:'上海院 · 设计',desc:'浦东经典科普地标，获多项国家大奖。',loc:'浦东花木',status:'built',year:'2001',lat:31.2207,lng:121.5410,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Shanghai_Science_and_Technology_Museum.jpg/400px-Shanghai_Science_and_Technology_Museum.jpg'},
   {cat:'culture',name:'上海少年儿童图书馆（长风馆）',role:'上海院 · 设计',desc:'新型少儿文化空间，长风公园畔。',loc:'普陀区长风',status:'built',year:'2022',lat:31.2268,lng:121.3958},
   {cat:'culture',name:'黄浦区文化中心',role:'华东院+何斐德 · 联合设计',desc:'含1000人剧场+黑箱剧场+五厅影院，2025年竣工。',loc:'黄浦区',status:'built',year:'2025',lat:31.2250,lng:121.4850},
   {cat:'culture',name:'上海历史博物馆',role:'华东院 · 改造设计',desc:'原跑马总会大楼，拆除后期搭建，开放共享庭院，重塑共生。',loc:'黄浦区人民广场',status:'built',year:'2018',lat:31.2325,lng:121.4720},
@@ -386,19 +390,19 @@ const projects = [
 
   // ===== 交通枢纽 =====
   {cat:'transport',name:'浦东国际机场T1航站楼',role:'华东院 · 参与设计',desc:'上海门户枢纽机场首期，奠定浦东机场国际航空枢纽地位。',loc:'浦东机场',status:'built',year:'1999',lat:31.1434,lng:121.8045},
-  {cat:'transport',name:'浦东国际机场T2航站楼',role:'华东院 · 原创设计',desc:'国内超大型机场首次原创设计，获全国优秀工程勘察设计奖金奖。',loc:'浦东机场',status:'built',year:'2008',lat:31.1450,lng:121.8010},
+  {cat:'transport',name:'浦东国际机场T2航站楼',role:'华东院 · 原创设计',desc:'国内超大型机场首次原创设计，获全国优秀工程勘察设计奖金奖。',loc:'浦东机场',status:'built',year:'2008',lat:31.1450,lng:121.8010,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Pudong_International_Airport_Terminal_2.jpg/400px-Pudong_International_Airport_Terminal_2.jpg'},
   {cat:'transport',name:'浦东国际机场卫星厅',role:'华东院 · 原创设计',desc:'世界最大单体卫星厅，提升浦东机场年吞吐量至8000万人次。',loc:'浦东机场',status:'built',year:'2019',lat:31.1350,lng:121.7950},
-  {cat:'transport',name:'虹桥综合交通枢纽',role:'华东院 · 总体设计协调',desc:'世界规模最大空陆一体化交通中心，核心区建面140万㎡，民航+高铁+城际+地铁+公交无缝衔接。',loc:'闵行区虹桥',status:'built',year:'2010',lat:31.1963,lng:121.3200},
+  {cat:'transport',name:'虹桥综合交通枢纽',role:'华东院 · 总体设计协调',desc:'世界规模最大空陆一体化交通中心，核心区建面140万㎡，民航+高铁+城际+地铁+公交无缝衔接。',loc:'闵行区虹桥',status:'built',year:'2010',lat:31.1963,lng:121.3200,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Hongqiao_Railway_Station_2014.jpg/400px-Hongqiao_Railway_Station_2014.jpg'},
   {cat:'transport',name:'东方枢纽上海东站',role:'华东院+中铁四院 · 联合设计',desc:'14台30线/建面74万㎡，国内首个空铁共构综合枢纽，空铁换乘仅4分钟，首个超低能耗交通枢纽。',loc:'浦东祝桥',status:'building',year:'',lat:31.1243,lng:121.7731},
-  {cat:'transport',name:'龙阳路磁悬浮车站',role:'华东院 · 郭建祥大师设计',desc:'中国首条磁悬浮商业运营线站点，交通建筑经典之作。',loc:'浦东花木',status:'built',year:'2002',lat:31.2040,lng:121.5560},
+  {cat:'transport',name:'龙阳路磁悬浮车站',role:'华东院 · 郭建祥大师设计',desc:'中国首条磁悬浮商业运营线站点，交通建筑经典之作。',loc:'浦东花木',status:'built',year:'2002',lat:31.2040,lng:121.5560,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Shanghai_Maglev_Train.jpg/400px-Shanghai_Maglev_Train.jpg'},
   {cat:'transport',name:'上海轨道交通13号线',role:'华建集团 · 设计',desc:'金运路站-诸光路站、张江路站-丹桂路站段设计。',loc:'上海',status:'built',year:'',lat:31.230,lng:121.474},
   {cat:'transport',name:'轨道交通19/23号线+嘉闵线',role:'华建集团 · 设计',desc:'多条在建轨道线路及市域线设计。',loc:'上海',status:'building',year:'',lat:31.230,lng:121.474},
 
   // ===== 体育场馆 =====
-  {cat:'sports',name:'浦东足球场',role:'上海院 · 设计',desc:'浦东金桥专业足球场，中超上海海港主场。',loc:'浦东金桥',status:'built',year:'2021',lat:31.2483,lng:121.5912},
-  {cat:'sports',name:'东方体育中心',role:'华东院 · 设计',desc:'世博会配套体育场馆，含游泳馆、体育馆、跳水馆。',loc:'浦东前滩',status:'built',year:'2011',lat:31.1558,lng:121.4800},
+  {cat:'sports',name:'浦东足球场',role:'上海院 · 设计',desc:'浦东金桥专业足球场，中超上海海港主场。',loc:'浦东金桥',status:'built',year:'2021',lat:31.2483,lng:121.5912,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Shanghai_Pudong_Football_Stadium.jpg/400px-Shanghai_Pudong_Football_Stadium.jpg'},
+  {cat:'sports',name:'东方体育中心',role:'华东院 · 设计',desc:'世博会配套体育场馆，含游泳馆、体育馆、跳水馆。',loc:'浦东前滩',status:'built',year:'2011',lat:31.1558,lng:121.4800,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Shanghai_Oriental_Sports_Center.jpg/400px-Shanghai_Oriental_Sports_Center.jpg'},
   {cat:'sports',name:'徐家汇体育公园',role:'华建集团 · 设计',desc:'含上海体育场（八万人体育场）+上海体育馆+上海游泳馆整体更新。',loc:'徐汇区',status:'built',year:'',lat:31.1860,lng:121.4370},
-  {cat:'sports',name:'上海国际赛车场',role:'上海院 · 参与设计',desc:'F1中国大奖赛举办地，国际顶级赛道设计。',loc:'嘉定区',status:'built',year:'2004',lat:31.3350,lng:121.2220},
+  {cat:'sports',name:'上海国际赛车场',role:'上海院 · 参与设计',desc:'F1中国大奖赛举办地，国际顶级赛道设计。',loc:'嘉定区',status:'built',year:'2004',lat:31.3350,lng:121.2220,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Shanghai_International_Circuit.jpg/400px-Shanghai_International_Circuit.jpg'},
   {cat:'sports',name:'久事国际马术中心',role:'华建集团 · 设计',desc:'世博文化公园内专业马术场馆。',loc:'浦东世博',status:'built',year:'',lat:31.1820,lng:121.4780},
   {cat:'sports',name:'静安区全民健身中心',role:'上海院 · 设计',desc:'静安区重要体育设施更新。',loc:'静安区',status:'building',year:'',lat:31.2550,lng:121.4530},
 
@@ -464,11 +468,11 @@ const projects = [
   {cat:'hotel',name:'张江雍翠75',role:'上海院 · 设计',desc:'15.3万㎡/693套租赁住宅，毗邻张江科学之门。',loc:'浦东张江',status:'built',year:'',lat:31.2060,lng:121.5820},
 
   // ===== 会展/博览 =====
-  {cat:'expo',name:'国家会展中心（"四叶草"）',role:'华东院 · 设计',desc:'中国国际进口博览会永久场馆，世界最大单体会展建筑之一。',loc:'青浦区虹桥',status:'built',year:'2015',lat:31.1922,lng:121.3140},
+  {cat:'expo',name:'国家会展中心（"四叶草"）',role:'华东院 · 设计',desc:'中国国际进口博览会永久场馆，世界最大单体会展建筑之一。',loc:'青浦区虹桥',status:'built',year:'2015',lat:31.1922,lng:121.3140,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/National_Exhibition_and_Convention_Center_%28Shanghai%29.jpg/400px-National_Exhibition_and_Convention_Center_%28Shanghai%29.jpg'},
   {cat:'expo',name:'西岸国际会展中心',role:'华东院 · 设计总包',desc:'"钻石"造型建筑/建面约8万㎡，含6000㎡+4000㎡无柱多功能厅，2025年竣工。',loc:'徐汇西岸',status:'built',year:'2025',lat:31.1620,lng:121.4650},
-  {cat:'expo',name:'世博中心',role:'华东院 · 设计',desc:'2010世博会永久建筑，现为重要政务与国际会议场所。',loc:'浦东世博',status:'built',year:'2010',lat:31.1880,lng:121.4840},
-  {cat:'expo',name:'中国国家馆（中华艺术宫）',role:'华东院 · 设计',desc:'2010世博会标志，"东方之冠"造型，现为中华艺术宫永久场馆。',loc:'浦东世博',status:'built',year:'2010',lat:31.1865,lng:121.4835},
-  {cat:'expo',name:'世博文化中心',role:'华东院 · 设计',desc:'梅赛德斯-奔驰文化中心，浦江最具辨识度的演艺场馆之一。',loc:'浦东世博',status:'built',year:'2010',lat:31.1890,lng:121.4850},
+  {cat:'expo',name:'世博中心',role:'华东院 · 设计',desc:'2010世博会永久建筑，现为重要政务与国际会议场所。',loc:'浦东世博',status:'built',year:'2010',lat:31.1880,lng:121.4840,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Expo_Center_Shanghai.jpg/400px-Expo_Center_Shanghai.jpg'},
+  {cat:'expo',name:'中国国家馆（中华艺术宫）',role:'华东院 · 设计',desc:'2010世博会标志，"东方之冠"造型，现为中华艺术宫永久场馆。',loc:'浦东世博',status:'built',year:'2010',lat:31.1865,lng:121.4835,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/China_Pavilion_Expo_2010.jpg/400px-China_Pavilion_Expo_2010.jpg'},
+  {cat:'expo',name:'世博文化中心',role:'华东院 · 设计',desc:'梅赛德斯-奔驰文化中心，浦江最具辨识度的演艺场馆之一。',loc:'浦东世博',status:'built',year:'2010',lat:31.1890,lng:121.4850,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Mercedes-Benz_Arena_Shanghai.jpg/400px-Mercedes-Benz_Arena_Shanghai.jpg'},
   {cat:'expo',name:'上海工业博物馆',role:'华东院+隈研吾 · 联合设计',desc:'江南制造总局旧址（1865年），建面约11万㎡，"新外滩工博群"，预计2027年。',loc:'浦西世博',status:'building',year:'2027',lat:31.1975,lng:121.4900},
   {cat:'expo',name:'西岸梦中心（Gate M）',role:'环境院 · 景观设计',desc:'原上海水泥厂改造，"水岸共生"滨水商业文旅地标，市级旅游休闲街区。',loc:'徐汇西岸',status:'built',year:'',lat:31.1640,lng:121.4650},
   {cat:'expo',name:'宋城演艺·世博大舞台',role:'华东院 · 改造设计',desc:'建面4.12万㎡，由宝钢大舞台改造而来，工业遗存活化典范。',loc:'浦东世博',status:'built',year:'2020',lat:31.1885,lng:121.4820},
@@ -496,6 +500,22 @@ const projects = [
   {cat:'urbanrenewal',name:'武夷路155号仪电地块',role:'华东院 · 有机更新',desc:'工业遗存有机更新，米色陶板+红砖与比利时领事馆材质对话。',loc:'长宁区',status:'built',year:'',lat:31.2190,lng:121.4150},
   {cat:'healthcare',name:'华东医院南楼（原宏恩医院）',role:'华东院 · 保护修缮',desc:'保护性修缮+先进顶升隔震技术，延长文物使用寿命。',loc:'静安区',status:'built',year:'',lat:31.2220,lng:121.4430},
   {cat:'hotel',name:'世博中心综合楼（酒店）',role:'华东院 · 原创设计',desc:'建面4万㎡，与世博中心连廊贯通，2024年全新开业。',loc:'浦东世博',status:'built',year:'2024',lat:31.1885,lng:121.4835},
+
+      // ===== 近期新增项目 =====
+      {cat:'urbanrenewal',name:'外滩国际人才服务中心',role:'环境院 · 室内设计',desc:'黄浦区中山南路100号金外滩国际广场1-7层，建面逾2200㎡。"国际外滩，勇立潮头"理念，曲面GRG造型+定制亚克力服务台+穿孔铝板外滩剪影背景墙。',loc:'黄浦区南外滩',status:'built',year:'2024',lat:31.2250,lng:121.5000},
+      {cat:'office',name:'北蔡第六元素未来空间',role:'建设咨询 · 设计总包',desc:'浦东新区北蔡镇，建面6.44万㎡，聚焦集成电路前沿产业。',loc:'浦东北蔡',status:'design',year:'',lat:31.1880,lng:121.5420},
+      {cat:'urbanrenewal',name:'徐汇滨江公共空间优化三期',role:'环境院 · 景观设计',desc:'梦中心岸线及龙耀路隧道上方区域，总面积约4.8万㎡。',loc:'徐汇西岸',status:'design',year:'',lat:31.1630,lng:121.4640},
+      {cat:'office',name:'雅创汽车电子总部基地',role:'建设咨询 · 施工总承包',desc:'闵行区颛桥镇，总建筑面积约4.16万㎡，集研发中心、仓储、生活配套于一体的总部园区。',loc:'闵行区颛桥',status:'building',year:'',lat:31.0720,lng:121.4000},
+      {cat:'commercial',name:'上海燃气中央仓库（浦西）',role:'环境院 · 原创设计',desc:'青浦区徐泾镇，总用地约6.65万㎡，智慧仓储新标杆。',loc:'青浦区徐泾',status:'design',year:'',lat:31.1750,lng:121.2840},
+
+
+      // ===== 第二批新增项目 =====
+      {cat:'commercial',name:'滴水湖金融湾"荣耀之环"',role:'华东院 · 设计总包',desc:'临港新片区滴水湖北岸，巨型圆环地标建筑，2024年起吊合龙。',loc:'浦东临港',status:'building',year:'',lat:30.9090,lng:121.9280},
+      {cat:'urbanrenewal',name:'外滩国际大楼',role:'华东院 · 保护修缮',desc:'中山东一路15-1号，原外汇交易中心，改造为高端金融办公。',loc:'黄浦区外滩',status:'built',year:'2023',lat:31.2395,lng:121.4880},
+      {cat:'sports',name:'临港水上运动中心',role:'上海院 · 设计',desc:'滴水湖畔新建水上运动综合场馆。',loc:'浦东临港',status:'design',year:'',lat:30.9050,lng:121.9250},
+      {cat:'healthcare',name:'瑞金医院金山院区',role:'上海院 · 设计',desc:'上海市重大工程，远郊优质医疗资源下沉标杆项目。',loc:'金山区',status:'building',year:'',lat:30.7500,lng:121.3300},
+      {cat:'culture',name:'上海文化广场景观提升',role:'环境院 · 景观设计',desc:'人民广场核心文化片区景观整体提升。',loc:'黄浦区人民广场',status:'built',year:'',lat:31.2320,lng:121.4690},
+
 ];
 
 // ===== BUILD UI =====
@@ -519,11 +539,14 @@ function buildAll() {
       const statusClass = p.status === 'built' ? 'tag-built' : p.status === 'building' ? 'tag-building' : 'tag-design';
       const statusText = p.status === 'built' ? `✅ ${p.year||'已建成'}` : p.status === 'building' ? `🔨 ${p.year||'在建'}` : `📐 ${p.year||'设计中'}`;
       html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}">
+	        ${p.img?'<img class=\"card-img\" src=\"'+p.img+'\" alt=\"'+p.name+'\" loading=\"lazy\" onerror=\"this.style.display=\\'none\\'\">':''}
+	        <div class="card-body">
         <div class="card-name">${p.name}</div>
         <div class="card-role">${p.role}</div>
         <div class="card-desc">${p.desc}</div>
         <div class="card-footer">
           <span class="card-meta"><span class="card-tag ${statusClass}">${statusText}</span><span class="tag-location">📍 ${p.loc}</span></span>
+        </div>
         </div>
       </div>`;
     });
