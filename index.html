@@ -342,7 +342,7 @@ const catColors = {
   supertall:'#e65100',culture:'#7b1fa2',transport:'#1565c0',sports:'#2e7d32',
   healthcare:'#c62828',education:'#00838f',urbanrenewal:'#6d4c41',office:'#37474f',
   commercial:'#f57c00',hotel:'#ad1457',expo:'#212121',research:'#283593'
-};
+,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Shanghai_International_Fashion_Center.jpg/400px-Shanghai_International_Fashion_Center.jpg'};
 
 // ===== BUILD MARKERS =====
 function buildMarkers() {
@@ -435,7 +435,7 @@ const projects = [
   {cat:'culture',name:'上海科技馆',role:'上海院 · 设计',desc:'浦东经典科普地标，获多项国家大奖。',loc:'浦东花木',status:'built',year:'2001',lat:31.2207,lng:121.5410,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Shanghai_Science_and_Technology_Museum.jpg/400px-Shanghai_Science_and_Technology_Museum.jpg'},
   {cat:'culture',name:'上海少年儿童图书馆（长风馆）',role:'上海院 · 设计',desc:'新型少儿文化空间，长风公园畔。',loc:'普陀区长风',status:'built',year:'2022',lat:31.2268,lng:121.3958},
   {cat:'culture',name:'黄浦区文化中心',role:'华东院+何斐德 · 联合设计',desc:'含1000人剧场+黑箱剧场+五厅影院，2025年竣工。',loc:'黄浦区',status:'built',year:'2025',lat:31.2250,lng:121.4850},
-  {cat:'culture',name:'上海历史博物馆',role:'华东院 · 改造设计',desc:'原跑马总会大楼，拆除后期搭建，开放共享庭院，重塑共生。',loc:'黄浦区人民广场',status:'built',year:'2018',lat:31.2325,lng:121.4720},
+  {cat:'culture',name:'上海历史博物馆',role:'华东院 · 改造设计',desc:'原跑马总会大楼，拆除后期搭建，开放共享庭院，重塑共生。',loc:'黄浦区人民广场',status:'built',year:'2018',lat:31.2325,lng:121.4720,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Shanghai_History_Museum.jpg/400px-Shanghai_History_Museum.jpg'},
   {cat:'culture',name:'上海市档案馆新馆',role:'华建集团 · 设计',desc:'浦东白杨路636号，全国规模最大省级国家综合档案馆，建面13.1万㎡。',loc:'浦东花木',status:'built',year:'2021',lat:31.2065,lng:121.5510},
   {cat:'culture',name:'嘉定区档案馆新馆',role:'上海院 · 原创设计',desc:'嘉定区嘉戬公路116号，已向公众开放的新一代综合档案馆。',loc:'嘉定区嘉戬公路',status:'built',year:'',lat:31.3800,lng:121.2720},
   {cat:'culture',name:'上海越剧演艺传习中心',role:'上海院 · 设计',desc:'徐汇区枫林街道，建面2.16万㎡，立面"袖舞"造型寓意，文化软实力提升项目。',loc:'徐汇区枫林',status:'building',year:'',lat:31.1940,lng:121.4510},
@@ -486,10 +486,10 @@ const projects = [
   {cat:'urbanrenewal',name:'汇丰银行大楼（外滩12号）',role:'华东院 · 保护修缮',desc:'1923年建成，"从苏伊士运河到白令海峡最华贵的建筑"。',loc:'黄浦区外滩',status:'built',year:'',lat:31.2398,lng:121.4878},
   {cat:'urbanrenewal',name:'和平饭店保护与扩建',role:'华东院 · 保护修缮',desc:'沙逊大厦"远东第一楼"，修旧如旧，恢复八角中庭与丰字形长廊。',loc:'黄浦区外滩',status:'built',year:'2010',lat:31.2410,lng:121.4890},
   {cat:'urbanrenewal',name:'张园西区保护修缮',role:'华建集团 · 保护更新',desc:'上海最大石库门里弄群之一，16栋历史建筑分级保护利用，海派特色商业街。',loc:'静安区',status:'built',year:'2023',lat:31.2278,lng:121.4510},
-  {cat:'urbanrenewal',name:'上生·新所城市更新（一、二期）',role:'华东院 · 更新设计',desc:'封闭科研园区→国际化潮流社区，含哥伦比亚乡村俱乐部、孙科别墅（邬达克设计）。',loc:'长宁区',status:'built',year:'',lat:31.2195,lng:121.4110},
-  {cat:'urbanrenewal',name:'四行仓库修缮',role:'华东院 · 保护修缮',desc:'上海唯一抗战纪念地实体留存，西墙"弹孔"战争痕迹展示+抗战纪念馆。',loc:'静安区苏州河',status:'built',year:'2015',lat:31.2448,lng:121.4715},
-  {cat:'urbanrenewal',name:'上海展览中心外立面修缮',role:'华东院 · 保护修缮',desc:'首批中国20世纪建筑遗产，最大面积水刷石墙面无色差修复，鎏金钢塔复原。',loc:'静安区',status:'built',year:'',lat:31.2285,lng:121.4480},
-  {cat:'urbanrenewal',name:'圣三一堂（红礼拜堂）',role:'华东院 · 保护修缮',desc:'上海最早基督教堂（1847年），获2017 UNESCO亚太文化遗产保护杰出项目奖。',loc:'黄浦区九江路',status:'built',year:'2017',lat:31.2375,lng:121.4840},
+  {cat:'urbanrenewal',name:'上生·新所城市更新（一、二期）',role:'华东院 · 更新设计',desc:'封闭科研园区→国际化潮流社区，含哥伦比亚乡村俱乐部、孙科别墅（邬达克设计）。',loc:'长宁区',status:'built',year:'',lat:31.2195,lng:121.4110,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Shanghai_Rose_%28Columbia_Circle%29.jpg/400px-Shanghai_Rose_%28Columbia_Circle%29.jpg'},
+  {cat:'urbanrenewal',name:'四行仓库修缮',role:'华东院 · 保护修缮',desc:'上海唯一抗战纪念地实体留存，西墙"弹孔"战争痕迹展示+抗战纪念馆。',loc:'静安区苏州河',status:'built',year:'2015',lat:31.2448,lng:121.4715,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Sihang_Warehouse_2015.jpg/400px-Sihang_Warehouse_2015.jpg'},
+  {cat:'urbanrenewal',name:'上海展览中心外立面修缮',role:'华东院 · 保护修缮',desc:'首批中国20世纪建筑遗产，最大面积水刷石墙面无色差修复，鎏金钢塔复原。',loc:'静安区',status:'built',year:'',lat:31.2285,lng:121.4480,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Shanghai_Exhibition_Centre_2015.jpg/400px-Shanghai_Exhibition_Centre_2015.jpg'},
+  {cat:'urbanrenewal',name:'圣三一堂（红礼拜堂）',role:'华东院 · 保护修缮',desc:'上海最早基督教堂（1847年），获2017 UNESCO亚太文化遗产保护杰出项目奖。',loc:'黄浦区九江路',status:'built',year:'2017',lat:31.2375,lng:121.4840,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Holy_Trinity_Church_Shanghai.jpg/400px-Holy_Trinity_Church_Shanghai.jpg'},
   {cat:'urbanrenewal',name:'雷士德工学院旧址',role:'华东院 · 保护修缮',desc:'1934年哥特复兴+装饰艺术风格，获上海市建筑遗产保护利用示范项目。',loc:'虹口北外滩',status:'built',year:'2023',lat:31.2540,lng:121.4965},
   {cat:'urbanrenewal',name:'南京路步行街东拓',role:'华东院 · 设计',desc:'南京路步行街向中山东一路延伸约500米，连通外滩。',loc:'黄浦区南京东路',status:'built',year:'2020',lat:31.2395,lng:121.4860},
   {cat:'urbanrenewal',name:'外滩·中央（179街坊）',role:'华东院 · 保护改建',desc:'中央商场、美伦大楼等成片保护改建，十字玻璃穹顶成标志景观。',loc:'黄浦区南京东路',status:'built',year:'2022',lat:31.2380,lng:121.4840},
@@ -529,7 +529,7 @@ const projects = [
   {cat:'expo',name:'世博文化中心',role:'华东院 · 设计',desc:'梅赛德斯-奔驰文化中心，浦江最具辨识度的演艺场馆之一。',loc:'浦东世博',status:'built',year:'2010',lat:31.1890,lng:121.4850,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Mercedes-Benz_Arena_Shanghai.jpg/400px-Mercedes-Benz_Arena_Shanghai.jpg'},
   {cat:'expo',name:'上海工业博物馆',role:'华东院+隈研吾 · 联合设计',desc:'江南制造总局旧址（1865年），建面约11万㎡，"新外滩工博群"，预计2027年。',loc:'浦西世博',status:'building',year:'2027',lat:31.1975,lng:121.4900},
   {cat:'expo',name:'西岸梦中心（Gate M）',role:'环境院 · 景观设计',desc:'原上海水泥厂改造，"水岸共生"滨水商业文旅地标，市级旅游休闲街区。',loc:'徐汇西岸',status:'built',year:'',lat:31.1640,lng:121.4650},
-  {cat:'expo',name:'宋城演艺·世博大舞台',role:'华东院 · 改造设计',desc:'建面4.12万㎡，由宝钢大舞台改造而来，工业遗存活化典范。',loc:'浦东世博',status:'built',year:'2020',lat:31.1885,lng:121.4820},
+  {cat:'expo',name:'宋城演艺·世博大舞台',role:'华东院 · 改造设计',desc:'建面4.12万㎡，由宝钢大舞台改造而来，工业遗存活化典范。',loc:'浦东世博',status:'built',year:'2020',lat:31.1885,lng:121.4820,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Shanghai_Expo_Stage_2020.jpg/400px-Shanghai_Expo_Stage_2020.jpg'},
 
   // ===== 科研设施 =====
   {cat:'research',name:'上海光源工程（"鹦鹉螺"）',role:'上海院 · 设计',desc:'全球科学家在此实验，奠定上海科技创新中心地位，国家级大科学装置。',loc:'浦东张江',status:'built',year:'2009',lat:31.2050,lng:121.5780},
