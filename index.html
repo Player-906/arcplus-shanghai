@@ -384,7 +384,7 @@ function initMap() {
       className:'',iconSize:[16,16],iconAnchor:[8,8]
     });
     const marker = L.marker([m.lat, m.lng], {icon});
-    marker.bindPopup(`<div>${m.img?`<img class="popup-img" src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.display='none'">`:''}<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span class="popup-desc">${m.desc.substring(0,120)}${m.desc.length>120?'…':''}</span><br><a href="javascript:void(0)" onclick="openModal(projects[${i}])" style="display:inline-block;margin-top:6px;padding:5px 14px;background:#DB0A1F;color:#fff;border-radius:50px;font-size:11px;text-decoration:none;font-weight:600">📋 查看详情</a></div>`);
+    marker.bindPopup(`<div>${m.img?`<img class="popup-img" src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.display='none'">`:''}<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span class="popup-desc">${m.desc.substring(0,120)}${m.desc.length>120?'…':''}</span><br><a href="#" onclick="event.preventDefault();event.stopPropagation();openModal(projects[${i}]);return false" style="display:inline-block;margin-top:6px;padding:5px 14px;background:#DB0A1F;color:#fff;border-radius:50px;font-size:11px;text-decoration:none;font-weight:600">📋 查看详情</a></div>`);
     clusterGroup.addLayer(marker);
   });
 
@@ -591,8 +591,9 @@ function buildAll() {
       <div class="card-grid">`;
     catProjects.forEach((p, pi) => {
       const statusClass = p.status === 'built' ? 'tag-built' : p.status === 'building' ? 'tag-building' : 'tag-design';
+      const globalIdx = projects.findIndex(pr => pr.name === p.name && pr.cat === p.cat);
       const statusText = p.status === 'built' ? `✅ ${p.year||'已建成'}` : p.status === 'building' ? `🔨 ${p.year||'在建'}` : `📐 ${p.year||'设计中'}`;
-      html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}" data-pidx="${pi}" onclick="openModal(projects[${pi}])">
+      html += `<div class="card" data-cat="${p.cat}" data-status="${p.status}" data-search="${p.name} ${p.loc} ${p.desc} ${p.role}" data-pidx="${pi}" onclick="openModal(projects[${globalIdx}])">
 	        ${p.img?'<img class=\"card-img\" src=\"'+p.img+'\" alt=\"'+p.name+'\" loading=\"lazy\" onerror=\"this.style.display=\\'none\\'\">':''}
 	        <div class="card-body">
         <div class="card-name">${p.name}</div>
@@ -683,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" crossorigin=""></script>
 <script>
 // ===== MODAL LOGIC =====
-function openModal(p) {
+window.openModal = function(p) {
   document.getElementById('modalName').textContent = p.name;
   document.getElementById('modalRole').textContent = p.role;
   document.getElementById('modalDesc').textContent = p.desc;
@@ -726,7 +727,7 @@ function openModal(p) {
   document.body.style.overflow = 'hidden';
 }
 
-function closeModal() {
+window.closeModal = function() {
   document.getElementById('projectModal').classList.remove('open');
   document.body.style.overflow = '';
 }
