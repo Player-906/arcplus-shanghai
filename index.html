@@ -283,26 +283,6 @@ body{font-family:"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;col
 
 <!-- ====== DATA & SCRIPTS ====== -->
 <script>
-
-// Global image error fallback
-document.addEventListener('DOMContentLoaded', function() {
-  // Hide broken images
-  document.querySelectorAll('img.card-img, img.popup-img').forEach(function(img) {
-    img.addEventListener('error', function() { this.style.display = 'none'; });
-  });
-  // Re-apply after dynamic content loads
-  var observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(m) {
-      m.addedNodes.forEach(function(node) {
-        if (node.tagName === 'IMG' && (node.classList.contains('card-img') || node.classList.contains('popup-img'))) {
-          node.addEventListener('error', function() { this.style.display = 'none'; });
-        }
-      });
-    });
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-});
-
 // Category colors for markers
 const catColors = {
   supertall:'#e65100',culture:'#7b1fa2',transport:'#1565c0',sports:'#2e7d32',
@@ -350,7 +330,7 @@ function initMap() {
       className:'',iconSize:[16,16],iconAnchor:[8,8]
     });
     const marker = L.marker([m.lat, m.lng], {icon});
-    marker.bindPopup(`<div>${m.img?`<img class="popup-img" src="${m.img}" alt="${m.name}" loading="lazy" onerror="this.style.display='none'">`:''}<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span class="popup-desc">${m.desc}</span></div>`);
+    marker.bindPopup(`<div>${m.img?`<img class="popup-img" src="${m.img}" alt="${m.name}" loading="lazy">`:''}<strong>${m.name}</strong><br><span style="color:#888;font-size:12px">${m.statusText} · 📍${m.loc}</span><br><span style="color:#DB0A1F;font-size:12px">${m.role}</span><br><span class="popup-desc">${m.desc}</span></div>`);
     clusterGroup.addLayer(marker);
   });
 
